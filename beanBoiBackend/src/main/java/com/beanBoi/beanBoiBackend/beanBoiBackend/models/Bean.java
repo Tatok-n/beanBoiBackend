@@ -8,7 +8,7 @@ public class Bean {
         private String name;
         private String tastingNotes;
         private String roaster;
-        private int roastDegree;
+        private long roastDegree;
         private long altitude;
-        private long price;
+        private float price;
 }

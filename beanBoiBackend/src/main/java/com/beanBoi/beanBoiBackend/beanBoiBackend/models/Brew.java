@@ -13,9 +13,9 @@ public class Brew {
 
     private BrewType brewType;
 
-    private long duration;
-    private long doseIn;
-    private long doseOut;
+    private float duration;
+    private float doseIn;
+    private float doseOut;
 
     private Date brewDate;
     private Grinder grinderUsed;
