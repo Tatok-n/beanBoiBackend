@@ -5,8 +5,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class User {
-    private String id;
+public class User extends DocumentData {
+
     private String name;
     private List<Recipe> recipies;
     private List<Grinder> grinders;

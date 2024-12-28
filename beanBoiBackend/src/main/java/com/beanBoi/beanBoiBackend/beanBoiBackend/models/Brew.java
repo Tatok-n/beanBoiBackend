@@ -1,23 +1,23 @@
 package com.beanBoi.beanBoiBackend.beanBoiBackend.models;
 
+import com.google.cloud.Timestamp;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class Brew {
-    private String id;
-    private String name;
-    private String description;
-    private String grindSetting;
+public class Brew extends DocumentData {
 
+    private String grindSetting;
+    private String notes;
     private BrewType brewType;
 
     private float duration;
     private float doseIn;
     private float doseOut;
+    private float temperature;
 
-    private Date brewDate;
+    private Timestamp brewDate;
     private Grinder grinderUsed;
     private BeanPurchase coffeeUsed;
 }

@@ -2,19 +2,16 @@ package com.beanBoi.beanBoiBackend.beanBoiBackend.repositories;
 
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.*;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Configuration
@@ -57,14 +54,51 @@ public class FirestoreImplementation {
 
     public DocumentSnapshot getDocument(String collectionName, String documentId) {
         DocumentReference documentReference = getCollectionReference(collectionName).document(documentId);
-        ApiFuture<DocumentSnapshot> future = documentReference.get();
+        return  getDocumentFromReference(documentReference);
+    }
+
+    public DocumentSnapshot getDocumentFromReference(DocumentReference reference) {
+        ApiFuture<DocumentSnapshot> future = reference.get();
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
-
     }
 
+    public DocumentReference addDocumentToCollection(String collectionName, Map<String, Object> data) {
+        ApiFuture<DocumentReference> addedDocumentReference = getFirestore().collection(collectionName).add(data);
+        try {
+            return addedDocumentReference.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
+    public WriteResult updateDocument(String collectionName, String documentId, Map<String, Object> data) {
+        ApiFuture<WriteResult> updateResult = getFirestore().collection(collectionName).document(documentId).set(data);
+        try {
+            return updateResult.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public WriteResult updateDocumentField(String collectionName, String documentId, String fieldName, Object value) {
+        ApiFuture<WriteResult> updateResult = getFirestore().collection(collectionName).document(documentId).update(fieldName, value);
+        try {
+            return updateResult.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public WriteResult deleteDocument(String collectionName, String documentId) {
+        ApiFuture<WriteResult> deleteResult = getFirestore().collection(collectionName).document(documentId).delete();
+        try {
+            return deleteResult.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class Water {
     private float water;
-    private float time;
+    private long time;
 }

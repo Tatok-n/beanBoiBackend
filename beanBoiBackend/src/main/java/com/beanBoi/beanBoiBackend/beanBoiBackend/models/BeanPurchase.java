@@ -1,7 +1,10 @@
 package com.beanBoi.beanBoiBackend.beanBoiBackend.models;
 
-public class BeanPurchase {
-    private String id;
+import lombok.Data;
+
+@Data
+public class BeanPurchase extends DocumentData {
+
     private float amountRemaining;
     private float amountPurchased;
     private Bean beansPurchased;

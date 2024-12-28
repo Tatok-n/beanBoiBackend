@@ -3,8 +3,8 @@ package com.beanBoi.beanBoiBackend.beanBoiBackend.models;
 import lombok.Data;
 
 @Data
-public class Bean {
-        private String id;
+public class Bean extends DocumentData {
+
         private String name;
         private String tastingNotes;
         private String roaster;
