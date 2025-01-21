@@ -10,21 +10,22 @@ import org.springframework.context.annotation.Configuration;
 
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Configuration
 public class FirestoreImplementation {
 
-    private String serviceAcccountPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
-    private String projectId = System.getenv("BEANBOI_PROJECTID");
+    private final String serviceAcccountPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+    private final String projectId = System.getenv("BEANBOI_PROJECTID");
     private Firestore firestore = null;
 
     private void init() {
         try {
             FileInputStream serviceAccount = new FileInputStream(serviceAcccountPath);
-
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .setProjectId(projectId)
@@ -35,6 +36,9 @@ public class FirestoreImplementation {
             throw new RuntimeException(e);
         }
 
+    }
+    public void setFirestore(Firestore firestore) {
+        this.firestore = firestore;
     }
 
     public Firestore getFirestore() {
@@ -66,8 +70,21 @@ public class FirestoreImplementation {
         }
     }
 
-    public DocumentReference addDocumentToCollection(String collectionName, Map<String, Object> data) {
-        ApiFuture<DocumentReference> addedDocumentReference = getFirestore().collection(collectionName).add(data);
+    public DocumentReference addDocumentToCollection(String collectionName, Map<String, Object> data) throws FileNotFoundException {
+        Iterator<CollectionReference> collections = getFirestore().listCollections().iterator();
+        boolean found = false;
+
+        while (collections.hasNext()) {
+            CollectionReference collection = collections.next();
+            if (collection.getId().equals(collectionName)) found = true;
+        }
+
+        if (!found) throw new FileNotFoundException("Collection " + collectionName + " does not exist!");
+        return addDocumentToNewCollection(collectionName, data);
+    }
+
+    public DocumentReference addDocumentToNewCollection(String collectionName, Map<String, Object> data) {
+       ApiFuture<DocumentReference> addedDocumentReference = getFirestore().collection(collectionName).add(data);
         try {
             return addedDocumentReference.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -100,5 +117,7 @@ public class FirestoreImplementation {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
+
     }
+
 }

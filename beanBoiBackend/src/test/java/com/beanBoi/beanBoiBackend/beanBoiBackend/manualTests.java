@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.FileNotFoundException;
+
 @SpringBootTest
 class manualTests {
 
@@ -26,7 +28,7 @@ class manualTests {
     @Autowired
     private UserRepository userRepository;
 
-    @Test public void manualTests() {
+    @Test public void manualTests() throws FileNotFoundException {
        System.out.println(beanRepository.getBeanById("bean0"));
        System.out.println(beanPurchaseRepository.getBeanPurchaseById("beanPurchase0"));
 

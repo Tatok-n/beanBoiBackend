@@ -8,6 +8,7 @@ import com.google.cloud.firestore.WriteResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.Optional;
 
@@ -34,7 +35,7 @@ public abstract class DocumentRepository {
     }
 
     public DocumentReference saveDocument(DocumentData data) {
-        DocumentReference documentReference = firestoreImplementation.addDocumentToCollection(collectionName,getAsMap(data));
+        DocumentReference documentReference = firestoreImplementation.addDocumentToNewCollection(collectionName,getAsMap(data));
         data.setId(documentReference.getId());
         return documentReference;
     }

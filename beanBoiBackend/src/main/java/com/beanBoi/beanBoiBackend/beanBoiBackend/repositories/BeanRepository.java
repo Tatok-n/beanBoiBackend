@@ -40,7 +40,7 @@ public class BeanRepository extends DocumentRepository{
         bean.setName(map.get("Name").toString());
         bean.setRoaster(map.get("Roaster").toString());
         bean.setTastingNotes(map.get("tastingNotes").toString());
-        bean.setRoastDegree(Long.parseLong(map.get("altitude").toString()));
+        bean.setAltitude(Long.parseLong(map.get("altitude").toString()));
         bean.setPrice(Float.parseFloat(map.get("price").toString()));
         bean.setRoastDegree(Long.parseLong(map.get("roastDegree").toString()));
         bean.setActive(Boolean.parseBoolean((map.get("isActive").toString())));
@@ -59,7 +59,6 @@ public class BeanRepository extends DocumentRepository{
             bean = getBeanById(firestoreImplementation.getDocumentFromReference(reference).getId());
         }
         return bean;
-
     }
 
 }
