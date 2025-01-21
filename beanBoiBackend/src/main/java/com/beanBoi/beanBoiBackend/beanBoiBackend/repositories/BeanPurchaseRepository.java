@@ -30,6 +30,7 @@ public class BeanPurchaseRepository extends DocumentRepository {
         beanPurchaseMap.put("amountRemaining", Float.toString(beanPurchase.getAmountRemaining()));
         beanPurchaseMap.put("beans", beanRepository.getAsMap(beanPurchase.getBeansPurchased()));
         beanPurchaseMap.put("isActive", beanPurchase.isActive());
+        beanPurchaseMap.put("uid", beanPurchase.getUid());
         return beanPurchaseMap;
     }
 
@@ -38,6 +39,7 @@ public class BeanPurchaseRepository extends DocumentRepository {
         BeanPurchase beanPurchase = new BeanPurchase();
         beanPurchase.setAmountRemaining(Float.parseFloat(map.get("amountRemaining").toString()));
         beanPurchase.setAmountPurchased(Float.parseFloat(map.get("amountPurchased").toString()));
+        beanPurchase.setUid((String) map.get("uid"));
 
         Bean beans = beanRepository.verifyBean((DocumentReference)map.get("beans"));
         beanPurchase.setBeansPurchased(beans);

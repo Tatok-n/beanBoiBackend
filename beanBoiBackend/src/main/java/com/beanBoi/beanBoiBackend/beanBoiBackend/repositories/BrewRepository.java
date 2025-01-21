@@ -40,6 +40,7 @@ public class BrewRepository extends DocumentRepository {
         brewMap.put("isActive", brew.isActive());
         brewMap.put("grindSetting", brew.getGrindSetting());
         brewMap.put("notes", brew.getNotes());
+        brewMap.put("uid", brew.getUid());
         return brewMap;
     }
 
@@ -52,6 +53,7 @@ public class BrewRepository extends DocumentRepository {
         brew.setDoseOut(Float.parseFloat(map.get("doseOut").toString()));
         brew.setDuration(Float.parseFloat(map.get("duration").toString()));
         brew.setTemperature(Float.parseFloat(map.get("temperature").toString()));
+        brew.setUid((String) map.get("uid"));
 
         brew.setNotes(map.get("notes").toString());
         brew.setGrindSetting(map.get("grindSetting").toString());

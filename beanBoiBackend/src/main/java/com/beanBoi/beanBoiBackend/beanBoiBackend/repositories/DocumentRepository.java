@@ -40,6 +40,11 @@ public abstract class DocumentRepository {
         return documentReference;
     }
 
+    public DocumentReference saveDocumentWithId(String id, DocumentData data) {
+        DocumentReference documentReference = firestoreImplementation.addDocumentToCollectionWithId(collectionName,getAsMap(data),id);
+        return documentReference;
+    }
+
     public WriteResult updateDocument(DocumentData data) {
         return firestoreImplementation.updateDocument(collectionName,data.getId(),getAsMap(data));
     }

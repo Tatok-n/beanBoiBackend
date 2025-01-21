@@ -25,12 +25,14 @@ public class BeanRepository extends DocumentRepository{
         Bean bean = (Bean) data;
         Map<String, Object> beanMap = new HashMap<>();
         beanMap.put("Name", bean.getName());
+        beanMap.put("uid", bean.getUid());
         beanMap.put("Roaster", bean.getRoaster());
         beanMap.put("altitude", bean.getAltitude());
         beanMap.put("price", Float.toString(bean.getPrice()));
         beanMap.put("roastDegree", bean.getRoastDegree());
         beanMap.put("tastingNotes", bean.getTastingNotes());
         beanMap.put("isActive", bean.isActive());
+
         return beanMap;
     }
 
@@ -38,6 +40,7 @@ public class BeanRepository extends DocumentRepository{
     public DocumentData getFromMap(Map<String, Object> map) {
         Bean bean = new Bean();
         bean.setName(map.get("Name").toString());
+        bean.setUid(map.get("uid").toString());
         bean.setRoaster(map.get("Roaster").toString());
         bean.setTastingNotes(map.get("tastingNotes").toString());
         bean.setAltitude(Long.parseLong(map.get("altitude").toString()));

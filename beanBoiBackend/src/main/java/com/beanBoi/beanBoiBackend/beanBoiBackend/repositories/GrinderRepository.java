@@ -23,6 +23,7 @@ public class GrinderRepository extends DocumentRepository{
         Grinder grinder = (Grinder) data;
         Map<String, Object> grinderMap = new HashMap<>();
         grinderMap.put("name", grinder.getName());
+        grinderMap.put("uid", grinder.getUid());
         grinderMap.put("isActive", grinder.isActive());
         grinderMap.put("settings", grinder.getGrindSetting());
         return grinderMap;
@@ -32,6 +33,7 @@ public class GrinderRepository extends DocumentRepository{
     public DocumentData getFromMap(Map<String, Object> map) {
         Grinder grinder = new Grinder();
         grinder.setName((String) map.get("name"));
+        grinder.setUid((String) map.get("uid"));
         grinder.setActive((boolean) map.get("isActive"));
         grinder.setGrindSetting((List<String>) map.get("settings"));
         return grinder;

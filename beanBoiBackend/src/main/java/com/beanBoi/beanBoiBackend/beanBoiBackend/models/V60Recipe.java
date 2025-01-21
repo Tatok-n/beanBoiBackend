@@ -7,4 +7,5 @@ import java.util.List;
 @Data
 public class V60Recipe extends Recipe {
     private List<Water> waterAmount;
+
 }

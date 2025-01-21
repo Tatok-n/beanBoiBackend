@@ -92,6 +92,17 @@ public class FirestoreImplementation {
         }
     }
 
+    public DocumentReference addDocumentToCollectionWithId(String collectionName, Map<String, Object> data, String id) {
+        ApiFuture<WriteResult> writeResult = getFirestore().collection(collectionName).document(id).set(data);
+        WriteResult result = null;
+        try {
+            result = writeResult.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        return getFirestore().collection(collectionName).document(id);
+    }
+
     public WriteResult updateDocument(String collectionName, String documentId, Map<String, Object> data) {
         ApiFuture<WriteResult> updateResult = getFirestore().collection(collectionName).document(documentId).set(data);
         try {

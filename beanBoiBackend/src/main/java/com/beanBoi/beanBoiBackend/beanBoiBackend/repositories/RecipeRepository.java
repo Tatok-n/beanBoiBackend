@@ -58,6 +58,7 @@ public class RecipeRepository extends DocumentRepository{
 
         Recipe recipe = new Recipe();
         recipe.setName((String) map.get("name"));
+        recipe.setUid((String) map.get("uid"));
         recipe.setDescription((String) map.get("description"));
         recipe.setDuration((Long) map.get("duration"));
         recipe.setRatio(Float.parseFloat(map.get("duration").toString()));
@@ -102,6 +103,7 @@ public class RecipeRepository extends DocumentRepository{
         eRecipe.setRatio(recipe.getRatio());
         eRecipe.setActive(recipe.isActive());
         eRecipe.setTemperature(recipe.getTemperature());
+        eRecipe.setUid(recipe.getUid());
         return eRecipe;
     }
 
@@ -113,6 +115,7 @@ public class RecipeRepository extends DocumentRepository{
         vRecipe.setRatio(recipe.getRatio());
         vRecipe.setActive(recipe.isActive());
         vRecipe.setTemperature(recipe.getTemperature());
+        vRecipe.setUid(recipe.getUid());
         return vRecipe;
     }
 

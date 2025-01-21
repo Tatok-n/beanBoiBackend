@@ -10,6 +10,7 @@ public class Brew extends DocumentData {
 
     private String grindSetting;
     private String notes;
+    private String uid;
     private BrewType brewType;
 
     private float duration;

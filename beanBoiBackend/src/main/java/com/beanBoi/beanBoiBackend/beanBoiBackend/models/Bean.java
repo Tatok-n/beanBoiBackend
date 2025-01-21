@@ -11,4 +11,5 @@ public class Bean extends DocumentData {
         private long roastDegree;
         private long altitude;
         private float price;
+        private String uid;
 }

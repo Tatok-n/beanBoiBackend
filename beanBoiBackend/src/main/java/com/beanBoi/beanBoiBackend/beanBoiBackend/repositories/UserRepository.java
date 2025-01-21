@@ -38,6 +38,7 @@ public class UserRepository extends DocumentRepository{
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("displayName", user.getName());
         userMap.put("isActive", user.isActive());
+        userMap.put("id", user.getId());
 
         List<Map<String, Object>> brews = user.getBrews().stream().map(brew -> (brewRepository.getAsMap(brew))).toList();
         List<Map<String, Object>> grinders = user.getGrinders().stream().map(grinder -> (grinderRepository.getAsMap(grinder))).toList();
@@ -66,8 +67,6 @@ public class UserRepository extends DocumentRepository{
         List<DocumentReference> beanReferences = (List<DocumentReference>) map.get("beansOwned");
         List<DocumentReference> recipeReferences = (List<DocumentReference>) map.get("recipes");
 
-
-
         List<Grinder> grinders = grinderReferences.stream().map(grinderRepository::verifyGrinder).toList();
         List<Brew> brews = brewReferences.stream().map(brewRepository::verifyBrew).toList();
         List<BeanPurchase> beansAvailable = beanPurchaseReferences.stream().map(beanPurchaseRepository::verifyPurchase).toList();
@@ -79,11 +78,14 @@ public class UserRepository extends DocumentRepository{
         user.setBeansAvailable(beansAvailable);
         user.setBeansOwned(beans);
         user.setRecipies(recipes);
+        user.setId(map.get("id").toString());
         return user;
     }
 
     public User getUserById(String id) {
         return (User) getDocumentById(id);
     }
+
+
 
 }
