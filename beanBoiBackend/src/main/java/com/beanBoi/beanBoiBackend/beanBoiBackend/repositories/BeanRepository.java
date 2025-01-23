@@ -28,10 +28,11 @@ public class BeanRepository extends DocumentRepository{
         beanMap.put("uid", bean.getUid());
         beanMap.put("Roaster", bean.getRoaster());
         beanMap.put("altitude", bean.getAltitude());
-        beanMap.put("price", Float.toString(bean.getPrice()));
+        beanMap.put("price", (bean.getPrice()));
         beanMap.put("roastDegree", bean.getRoastDegree());
         beanMap.put("tastingNotes", bean.getTastingNotes());
         beanMap.put("isActive", bean.isActive());
+        beanMap.put("id", bean.getId());
 
         return beanMap;
     }
@@ -47,12 +48,23 @@ public class BeanRepository extends DocumentRepository{
         bean.setPrice(Float.parseFloat(map.get("price").toString()));
         bean.setRoastDegree(Long.parseLong(map.get("roastDegree").toString()));
         bean.setActive(Boolean.parseBoolean((map.get("isActive").toString())));
+        bean.setId(map.get("id").toString());
         return bean;
+    }
+
+    @Override
+    public DocumentReference saveDocument(DocumentData data) {
+        if (data.getId() == null) {
+            data.setId(getNewId());
+        }
+        return firestoreImplementation.addDocumentToCollectionWithId(collectionName,getAsMap(data), data.getId());
     }
 
     public Bean getBeanById(String beanId) {
         return (Bean) getDocumentById(beanId);
     }
+
+
 
     public Bean verifyBean(DocumentReference reference) {
         Bean bean = new Bean();

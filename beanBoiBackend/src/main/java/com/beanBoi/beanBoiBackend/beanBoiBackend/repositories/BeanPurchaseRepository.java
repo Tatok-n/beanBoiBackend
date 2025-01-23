@@ -31,6 +31,7 @@ public class BeanPurchaseRepository extends DocumentRepository {
         beanPurchaseMap.put("beans", beanRepository.getAsMap(beanPurchase.getBeansPurchased()));
         beanPurchaseMap.put("isActive", beanPurchase.isActive());
         beanPurchaseMap.put("uid", beanPurchase.getUid());
+        beanPurchaseMap.put("id", beanPurchase.getId());
         return beanPurchaseMap;
     }
 
@@ -44,7 +45,21 @@ public class BeanPurchaseRepository extends DocumentRepository {
         Bean beans = beanRepository.verifyBean((DocumentReference)map.get("beans"));
         beanPurchase.setBeansPurchased(beans);
         beanPurchase.setActive(Boolean.parseBoolean(map.get("isActive").toString()));
+        beanPurchase.setId((String) map.get("id"));
         return beanPurchase;
+    }
+
+    @Override
+    public DocumentReference saveDocument(DocumentData data) {
+        if (data.getId() == null) {
+            data.setId(getNewId());
+        }
+
+        DocumentReference purchasedBeans = beanRepository.saveDocument(((BeanPurchase) data).getBeansPurchased());
+        Map<String, Object> beanPurchaseMap = getAsMap(data);
+        beanPurchaseMap.put("beans", purchasedBeans);
+        return firestoreImplementation.addDocumentToCollectionWithId(collectionName, beanPurchaseMap,data.getId());
+
     }
 
 

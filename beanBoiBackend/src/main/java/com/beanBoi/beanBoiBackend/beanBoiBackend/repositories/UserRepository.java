@@ -4,6 +4,7 @@ import com.beanBoi.beanBoiBackend.beanBoiBackend.models.*;
 import com.google.cloud.firestore.DocumentReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.context.request.NativeWebRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +16,8 @@ public class UserRepository extends DocumentRepository{
     private FirestoreImplementation firestoreImplementation;
     @Autowired
     private RecipeRepository recipeRepository;
+    @Autowired
+    private NativeWebRequest nativeWebRequest;
 
     public UserRepository() {
         this.collectionName = "users";
@@ -80,6 +83,28 @@ public class UserRepository extends DocumentRepository{
         user.setRecipies(recipes);
         user.setId(map.get("id").toString());
         return user;
+    }
+
+    public DocumentReference saveDocument(DocumentData documentData) {
+        User user = (User) documentData;
+        if (user.getId() == null) {
+            user.setId(getNewId());
+        }
+        List<DocumentReference> beansReferences = user.getBeansOwned().stream().map(bean -> beanRepository.saveDocument(bean)).toList();
+        List<DocumentReference> beanPurchaseReference = user.getBeansAvailable().stream().map(beanPurchase -> beanPurchaseRepository.saveDocument(beanPurchase)).toList();
+        List<DocumentReference> brewReferences = user.getRecipies().stream().map(brew   -> brewRepository.saveDocument(brew)).toList();
+        List<DocumentReference> grinderReferences = user.getGrinders().stream().map(grinder -> grinderRepository.saveDocument(grinder)).toList();
+        List<DocumentReference> recipieReferences = user.getRecipies().stream().map(recipe -> recipeRepository.saveDocument(recipe)).toList();
+
+        Map<String, Object> userMap = new HashMap<>();
+        userMap.put("beansOwned", beansReferences);
+        userMap.put("beansAvailable", beanPurchaseReference);
+        userMap.put("brews", brewReferences);
+        userMap.put("grinders", grinderReferences);
+        userMap.put("recipes", recipieReferences);
+        DocumentReference savedUser = firestoreImplementation.addDocumentToCollectionWithId(collectionName, getAsMap(user),user.getId());
+
+        return savedUser;
     }
 
     public User getUserById(String id) {

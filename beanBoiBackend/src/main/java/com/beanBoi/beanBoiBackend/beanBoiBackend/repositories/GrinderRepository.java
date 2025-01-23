@@ -26,7 +26,16 @@ public class GrinderRepository extends DocumentRepository{
         grinderMap.put("uid", grinder.getUid());
         grinderMap.put("isActive", grinder.isActive());
         grinderMap.put("settings", grinder.getGrindSetting());
+        grinderMap.put("id", grinder.getId());
         return grinderMap;
+    }
+
+    @Override
+    public DocumentReference saveDocument(DocumentData data) {
+        if (data.getId() == null) {
+            data.setId(getNewId());
+        }
+        return firestoreImplementation.addDocumentToCollectionWithId(collectionName,getAsMap(data),data.getId());
     }
 
     @Override
@@ -36,6 +45,7 @@ public class GrinderRepository extends DocumentRepository{
         grinder.setUid((String) map.get("uid"));
         grinder.setActive((boolean) map.get("isActive"));
         grinder.setGrindSetting((List<String>) map.get("settings"));
+        grinder.setId((String) map.get("id"));
         return grinder;
     }
 

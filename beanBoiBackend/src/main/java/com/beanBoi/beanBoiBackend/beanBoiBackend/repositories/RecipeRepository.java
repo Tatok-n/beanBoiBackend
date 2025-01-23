@@ -28,6 +28,7 @@ public class RecipeRepository extends DocumentRepository{
         recipeMap.put("ratio", String.valueOf(recipe.getDuration()));
         recipeMap.put("temperature", String.valueOf(recipe.getTemperature()));
         recipeMap.put("isActive", recipe.isActive());
+        recipeMap.put("id", recipe.getId());
 
         if (recipe.getClass().equals(EspressoRecipe.class)) {
             EspressoRecipe eRecipe = (EspressoRecipe) recipe;
@@ -64,6 +65,7 @@ public class RecipeRepository extends DocumentRepository{
         recipe.setRatio(Float.parseFloat(map.get("duration").toString()));
         recipe.setActive((Boolean) map.get("isActive"));
         recipe.setTemperature(Float.parseFloat(map.get("temperature").toString()));
+        recipe.setId(map.get("id").toString());
 
         if (map.get("type").equals("Espresso")) {
             List<Map<String, Object>> waterFlow = (List<Map<String, Object>>) map.get("water flow");
@@ -117,6 +119,14 @@ public class RecipeRepository extends DocumentRepository{
         vRecipe.setTemperature(recipe.getTemperature());
         vRecipe.setUid(recipe.getUid());
         return vRecipe;
+    }
+
+    @Override
+    public DocumentReference saveDocument(DocumentData data) {
+        if (data.getId() == null) {
+            data.setId(getNewId());
+        }
+        return firestoreImplementation.addDocumentToCollectionWithId(collectionName,getAsMap(data), data.getId());
     }
 
     public Recipe verifyRecipe(DocumentReference reference) {

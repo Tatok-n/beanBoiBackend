@@ -41,6 +41,7 @@ public class BrewRepository extends DocumentRepository {
         brewMap.put("grindSetting", brew.getGrindSetting());
         brewMap.put("notes", brew.getNotes());
         brewMap.put("uid", brew.getUid());
+        brewMap.put("id", brew.getId());
         return brewMap;
     }
 
@@ -57,6 +58,7 @@ public class BrewRepository extends DocumentRepository {
 
         brew.setNotes(map.get("notes").toString());
         brew.setGrindSetting(map.get("grindSetting").toString());
+        brew.setId(map.get("id").toString());
         if (map.get("type").equals("Espresso")) {
             brew.setBrewType(BrewType.Espresso);
         } else {
@@ -70,6 +72,21 @@ public class BrewRepository extends DocumentRepository {
         BeanPurchase usedBeans = beanPurchaseRepository.verifyPurchase((DocumentReference)map.get("coffeeUsed"));
         brew.setCoffeeUsed(usedBeans);
         return brew;
+    }
+
+    @Override
+    public DocumentReference saveDocument(DocumentData data) {
+        if (data.getId() == null) {
+            data.setId(getNewId());
+        }
+
+        DocumentReference usedBeans = beanPurchaseRepository.saveDocument(((Brew) data).getCoffeeUsed());
+        DocumentReference grinderUsed = grinderRepository.saveDocument(((Brew) data).getGrinderUsed());
+        Map<String, Object> brewMap = getAsMap(data);
+        brewMap.put("grinderUsed", grinderUsed);
+        brewMap.put("coffeeUsed", usedBeans);
+        return firestoreImplementation.addDocumentToCollectionWithId(collectionName, brewMap, data.getId());
+
     }
 
     public Brew verifyBrew(DocumentReference reference) {

@@ -34,11 +34,7 @@ public abstract class DocumentRepository {
         return data;
     }
 
-    public DocumentReference saveDocument(DocumentData data) {
-        DocumentReference documentReference = firestoreImplementation.addDocumentToNewCollection(collectionName,getAsMap(data));
-        data.setId(documentReference.getId());
-        return documentReference;
-    }
+    public abstract DocumentReference saveDocument(DocumentData data);
 
     public DocumentReference saveDocumentWithId(String id, DocumentData data) {
         DocumentReference documentReference = firestoreImplementation.addDocumentToCollectionWithId(collectionName,getAsMap(data),id);
@@ -57,5 +53,9 @@ public abstract class DocumentRepository {
             throw new IllegalArgumentException("Field " + field + " not found");
         }
         return firestoreImplementation.updateDocumentField(collectionName,data.getId(),field,value);
+    }
+
+    public String getNewId() {
+        return firestoreImplementation.getFirestore().collection(collectionName).document().getId();
     }
 }
