@@ -25,10 +25,11 @@ public class RecipeRepository extends DocumentRepository{
         recipeMap.put("name", recipe.getName());
         recipeMap.put("description", recipe.getDescription());
         recipeMap.put("duration", recipe.getDuration());
-        recipeMap.put("ratio", String.valueOf(recipe.getDuration()));
+        recipeMap.put("ratio", recipe.getRatio());
         recipeMap.put("temperature", String.valueOf(recipe.getTemperature()));
         recipeMap.put("isActive", recipe.isActive());
         recipeMap.put("id", recipe.getId());
+        recipeMap.put("uid", recipe.getUid());
 
         if (recipe.getClass().equals(EspressoRecipe.class)) {
             EspressoRecipe eRecipe = (EspressoRecipe) recipe;
@@ -66,6 +67,7 @@ public class RecipeRepository extends DocumentRepository{
         recipe.setActive((Boolean) map.get("isActive"));
         recipe.setTemperature(Float.parseFloat(map.get("temperature").toString()));
         recipe.setId(map.get("id").toString());
+        recipe.setUid(map.get("uid").toString());
 
         if (map.get("type").equals("Espresso")) {
             List<Map<String, Object>> waterFlow = (List<Map<String, Object>>) map.get("water flow");
