@@ -6,6 +6,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.firebase.cloud.FirestoreClient;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.*;
@@ -19,6 +20,9 @@ public class TestUtils {
     String testId = "TESTID";
     Timestamp testStamp;
     static List<String> usedCollections = new ArrayList<>();
+
+    @Autowired
+    FirestoreImplementation firestore;
 
     @BeforeEach
     void setup() {
@@ -163,6 +167,7 @@ public class TestUtils {
         espressoRecipeMap.put("ratio", 2.0f);
         espressoRecipeMap.put("temperature", 100f);
         espressoRecipeMap.put("duration", 30f);
+        espressoRecipeMap.put("type", "Espresso");
 
         List<Map <String,Object>> waterMap = IntStream.range(0, 10).mapToObj(i -> {
             Map<String, Object> map = new HashMap<>();

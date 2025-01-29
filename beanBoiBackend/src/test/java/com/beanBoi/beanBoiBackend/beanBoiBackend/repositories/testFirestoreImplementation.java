@@ -23,15 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SpringBootTest
 public class testFirestoreImplementation extends TestUtils{
     @Autowired
-    FirestoreImplementation firestoreImplementation;
-    @Autowired
     private BeanRepository beanRepository;
 
 
     @Test
     public void testAddToANonExistentCollection() {
         //Execute
-        Exception exception = assertThrows(FileNotFoundException.class,() -> firestoreImplementation.addDocumentToCollection("FAKE COLLECTION", new HashMap<>()));
+        Exception exception = assertThrows(FileNotFoundException.class,() -> firestore.addDocumentToCollection("FAKE COLLECTION", new HashMap<>()));
 
         //Assert
         assertEquals("Collection FAKE COLLECTION does not exist!", exception.getMessage());
@@ -41,27 +39,27 @@ public class testFirestoreImplementation extends TestUtils{
     @Test
     public void testAddToCollection() {
         //Execute
-        DocumentReference documentReference = firestoreImplementation.addDocumentToNewCollection(testCollection, getBeanMap());
+        DocumentReference documentReference = firestore.addDocumentToNewCollection(testCollection, getBeanMap());
         HashMap<String, Object> beanmap = getBeanMap();
         beanmap.put("id", documentReference.getId());
-        addedDocuments.add(documentReference);
+
 
         //Assert
-        assertEquals(documentReference,firestoreImplementation.getFirestore().collection(testCollection).document(beanmap.get("id").toString()));
+        assertEquals(documentReference,firestore.getFirestore().collection(testCollection).document(beanmap.get("id").toString()));
     }
 
     @Test
     public void testGetDocument() {
         //Setup
-        DocumentReference documentReference = firestoreImplementation.addDocumentToNewCollection(testCollection, getBeanMap());
-        addedDocuments.add(documentReference);
+        DocumentReference documentReference = firestore.addDocumentToNewCollection(testCollection, getBeanMap());
+
 
         //Execute
-        DocumentSnapshot readDocument = firestoreImplementation.getDocumentFromReference(documentReference);
+        DocumentSnapshot readDocument = firestore.getDocumentFromReference(documentReference);
 
         //Assert
         try {
-            DocumentSnapshot snapshot = firestoreImplementation.getFirestore().collection(testCollection).document(readDocument.getId()).get().get();
+            DocumentSnapshot snapshot = firestore.getFirestore().collection(testCollection).document(readDocument.getId()).get().get();
             assertEquals(readDocument.get("name"),snapshot.get("name"));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -73,14 +71,14 @@ public class testFirestoreImplementation extends TestUtils{
     @Test
     public void testUpdateDocument() {
         //Setup
-        DocumentReference documentReference = firestoreImplementation.addDocumentToNewCollection(testCollection, getBeanMap());
-        addedDocuments.add(documentReference);
+        DocumentReference documentReference = firestore.addDocumentToNewCollection(testCollection, getBeanMap());
+        usedCollections.add(testCollection);
 
         //Execute
-        WriteResult result = firestoreImplementation.updateDocumentField(beanRepository.collectionName, documentReference.getId(), "name", "updated name");
+        WriteResult result = firestore.updateDocumentField(testCollection, documentReference.getId(), "name", "updated name");
 
         //Assert
-        assertEquals("updated name", firestoreImplementation.getDocument(beanRepository.collectionName, documentReference.getId()).get("name"));
+        assertEquals("updated name", firestore.getDocument(testCollection, documentReference.getId()).get("name"));
     }
 
 

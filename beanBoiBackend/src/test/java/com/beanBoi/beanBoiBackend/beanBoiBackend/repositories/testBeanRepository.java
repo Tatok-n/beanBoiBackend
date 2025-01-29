@@ -27,7 +27,6 @@ public class testBeanRepository extends TestUtils{
 
         //Execute
         DocumentReference documentReference = beanRepository.saveDocument(testBean);
-        addedDocuments.add(documentReference);
         String id = documentReference.getId();
 
         //Assert
@@ -40,7 +39,7 @@ public class testBeanRepository extends TestUtils{
         //Setup
         Bean testBean = getTestBean();
         DocumentReference documentReference = beanRepository.saveDocument(testBean);
-        addedDocuments.add(documentReference);
+        usedCollections.add(beanRepository.collectionName);
 
         //Execute
         Bean retrievedBean = beanRepository.getBeanById(documentReference.getId());

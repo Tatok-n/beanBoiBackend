@@ -92,17 +92,17 @@ public class UserRepository extends DocumentRepository{
         }
         List<DocumentReference> beansReferences = user.getBeansOwned().stream().map(bean -> beanRepository.saveDocument(bean)).toList();
         List<DocumentReference> beanPurchaseReference = user.getBeansAvailable().stream().map(beanPurchase -> beanPurchaseRepository.saveDocument(beanPurchase)).toList();
-        List<DocumentReference> brewReferences = user.getRecipies().stream().map(brew   -> brewRepository.saveDocument(brew)).toList();
+        List<DocumentReference> brewReferences = user.getBrews().stream().map(brew   -> brewRepository.saveDocument(brew)).toList();
         List<DocumentReference> grinderReferences = user.getGrinders().stream().map(grinder -> grinderRepository.saveDocument(grinder)).toList();
         List<DocumentReference> recipieReferences = user.getRecipies().stream().map(recipe -> recipeRepository.saveDocument(recipe)).toList();
 
-        Map<String, Object> userMap = new HashMap<>();
+        Map<String, Object> userMap = getAsMap(user);
         userMap.put("beansOwned", beansReferences);
         userMap.put("beansAvailable", beanPurchaseReference);
         userMap.put("brews", brewReferences);
         userMap.put("grinders", grinderReferences);
         userMap.put("recipes", recipieReferences);
-        DocumentReference savedUser = firestoreImplementation.addDocumentToCollectionWithId(collectionName, getAsMap(user),user.getId());
+        DocumentReference savedUser = firestoreImplementation.addDocumentToCollectionWithId(collectionName, userMap,user.getId());
 
         return savedUser;
     }
