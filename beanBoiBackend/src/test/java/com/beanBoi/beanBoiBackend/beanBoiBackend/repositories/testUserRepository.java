@@ -32,6 +32,7 @@ public class testUserRepository extends TestUtils {
 
     @Test
     public void testGetUser() {
+        //setup
         User testUser = getTestUser();
         DocumentReference documentReference = userRepository.saveDocument(testUser);
 
@@ -46,7 +47,7 @@ public class testUserRepository extends TestUtils {
 
 
     @Test void testSaveUser() {
-//Setup
+        //Setup
         User testUser = getTestUser();
 
         //Execute
@@ -59,20 +60,28 @@ public class testUserRepository extends TestUtils {
 
         String id = documentReference.getId();
 
+
+
+
         //Assert
         Map<String,Object> savedUser = userRepository.getAsMap(userRepository.getUserById(id));
+        Map<String,Object> savedBean = ((List<Map<String,Object>>) savedUser.get("beansOwned")).get(0);
+        Map<String,Object> beansAvailable = ((List<Map<String,Object>>) savedUser.get("beansAvailable")).get(0);
+        Map<String,Object> brews = ((List<Map<String,Object>>) savedUser.get("brews")).get(0);
+        Map<String,Object> grinders = ((List<Map<String,Object>>) savedUser.get("grinders")).get(0);
+        Map<String,Object> recipes = ((List<Map<String,Object>>) savedUser.get("recipes")).get(0);
         getTestUserMap().keySet().forEach(key ->
                 {
                     if (key.equals("beansOwned")) {
-                        assertEquals((List.of(getBeanMap())).toString(),  savedUser.get(key).toString());
+                        assertEquals(getBeanMap().toString(),  savedBean.toString());
                     } else if (key.equals("beansAvailable")) {
-                        assertEquals((List.of(getBeanPurchaseMap())).toString(),  (savedUser.get(key)).toString());
+                        assertEquals(getBeanPurchaseMap().toString(),  beansAvailable.toString());
                     }else if (key.equals("brews")) {
-                        assertEquals((List.of(getTestBrewMap())).toString(),  savedUser.get(key).toString());
+                        assertEquals(getTestBrewMap().toString(),  brews.toString());
                     }else if (key.equals("grinders")) {
-                        assertEquals((List.of(getTestGrinderMap())).toString(),  savedUser.get(key).toString());
+                        assertEquals(getTestGrinderMap().toString(), grinders.toString());
                     }else if (key.equals("recipes")) {
-                        assertEquals((List.of(getTestEspressoRecipeMap())).toString(),  savedUser.get(key).toString());
+                        assertEquals(getTestEspressoRecipeMap().toString(), recipes.toString());
                     }else {
                         assertEquals(getTestUserMap().get(key).toString(), firestore.getDocument(userRepository.collectionName, id).get(key).toString());}
                 }

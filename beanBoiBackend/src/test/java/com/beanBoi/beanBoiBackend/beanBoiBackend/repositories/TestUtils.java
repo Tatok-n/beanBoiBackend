@@ -45,13 +45,13 @@ public class TestUtils {
     public HashMap<String, Object> getBeanMap() {
         HashMap<String, Object> map = new HashMap<>();
         map.put("Name", "TanzaniaPeaberry");
+        map.put("uid", userUID);
         map.put("price", 12.5f);
         map.put("altitude", 1200L);
         map.put("Roaster", "Faro");
         map.put("isActive", true);
         map.put("roastDegree", 5L);
         map.put("tastingNotes", "Good stuff");
-        map.put("uid", userUID);
         map.put("id", testId);
         return map;
     }
@@ -90,11 +90,11 @@ public class TestUtils {
 
     public Map<String, Object> getTestGrinderMap() {
         HashMap<String, Object> map = new HashMap<>();
-        map.put("name", "Baratza sette 30");
         map.put("uid", userUID);
-        map.put("id", testId);
-        map.put("isActive", true);
         map.put("settings", List.of("1","2","3"));
+        map.put("id", testId);
+        map.put("name", "Baratza sette 30");
+        map.put("isActive", true);
         return map;
     }
 
@@ -119,8 +119,8 @@ public class TestUtils {
     public Map<String, Object> getTestBrewMap() {
         Map<String, Object> brewMap = new HashMap<String, Object>();
         brewMap.put("createdAt",testStamp);
-        brewMap.put("coffeeUsed",getTestBeanPurchase());
-        brewMap.put("grinderUsed",getTestGrinder());
+        brewMap.put("coffeeUsed",getBeanPurchaseMap());
+        brewMap.put("grinderUsed",getTestGrinderMap());
 
         brewMap.put("doseIn",20.0f);
         brewMap.put("doseOut",35.0f);
