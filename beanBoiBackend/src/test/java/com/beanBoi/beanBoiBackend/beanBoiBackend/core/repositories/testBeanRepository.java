@@ -1,5 +1,6 @@
 package com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories;
 
+import com.beanBoi.beanBoiBackend.beanBoiBackend.TestUtils;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Bean;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.firestore.repositories.FirestoreImplementation;
 import com.google.cloud.firestore.DocumentReference;

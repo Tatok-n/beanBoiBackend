@@ -23,7 +23,7 @@ public class TestUtils {
     public static List<String> usedCollections = new ArrayList<>();
 
     @Autowired
-    FirestoreImplementation firestore;
+    public FirestoreImplementation firestore;
 
     @BeforeEach
     void setup() {
