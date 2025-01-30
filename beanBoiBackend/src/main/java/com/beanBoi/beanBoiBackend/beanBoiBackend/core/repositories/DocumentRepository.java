@@ -28,8 +28,9 @@ public abstract class DocumentRepository {
 
     public DocumentData getDocumentById(String id) {
         DocumentSnapshot document = firestoreImplementation.getDocument(collectionName,id);
-        DocumentData data = getFromMap(document.getData());
-        data.setId(document.getId());
+        Map<String, Object> dataMap = document.getData();
+        dataMap.put("id", id);
+        DocumentData data = getFromMap(dataMap);
         return data;
     }
 

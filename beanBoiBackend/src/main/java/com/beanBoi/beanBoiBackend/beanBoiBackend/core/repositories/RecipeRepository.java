@@ -63,7 +63,7 @@ public class RecipeRepository extends DocumentRepository{
         recipe.setName((String) map.get("name"));
         recipe.setUid((String) map.get("uid"));
         recipe.setDescription((String) map.get("description"));
-        recipe.setDuration((double) map.get("duration"));
+        recipe.setDuration(Double.parseDouble(map.get("duration").toString()));
         recipe.setRatio(Float.parseFloat(map.get("ratio").toString()));
         recipe.setActive((Boolean) map.get("isActive"));
         recipe.setTemperature(Float.parseFloat(map.get("temperature").toString()));
