@@ -3,13 +3,16 @@ package com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories;
 
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.DocumentData;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.firestore.repositories.FirestoreImplementation;
+import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.FieldValue;
 import com.google.cloud.firestore.WriteResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 @Repository
 public abstract class DocumentRepository {
@@ -43,6 +46,18 @@ public abstract class DocumentRepository {
 
     public WriteResult updateDocument(DocumentData data) {
         return firestoreImplementation.updateDocument(collectionName,data.getId(),getAsMap(data));
+    }
+
+    public WriteResult updateDocumentListWithField(String id, Object data, String fieldName ) {
+        DocumentReference documentReference = firestoreImplementation.getDocumentReference(collectionName,id);
+        ApiFuture<WriteResult> arrayUnion = documentReference.update(fieldName, FieldValue.arrayUnion(data));
+        try {
+            return arrayUnion.get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public WriteResult updateDocumentField(DocumentData data, String field, Object value) {
