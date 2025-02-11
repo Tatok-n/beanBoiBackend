@@ -4,10 +4,7 @@ package com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.DocumentData;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.firestore.repositories.FirestoreImplementation;
 import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.FieldValue;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.firestore.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -60,17 +57,26 @@ public abstract class DocumentRepository {
         }
     }
 
-    public WriteResult updateDocumentField(DocumentData data, String field, Object value) {
-        Map<String, Object> map = getAsMap(data);
-        if (getAsMap(data).containsKey(field)) {
-            map.put(field, value);
-        } else {
-            throw new IllegalArgumentException("Field " + field + " not found");
+    public Object getDocumentField(String id, String fieldName) {
+        DocumentReference documentReference = firestoreImplementation.getDocumentReference(collectionName,id);
+        DocumentSnapshot document;
+        try {
+            document = documentReference.get().get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
         }
-        return firestoreImplementation.updateDocumentField(collectionName,data.getId(),field,value);
+        return document.get(fieldName);
+    }
+
+    public WriteResult updateDocumentField(String documentId, String field, Object value) {
+        return firestoreImplementation.updateDocumentField(collectionName,documentId,field,value);
     }
 
     public String getNewId() {
         return firestoreImplementation.getFirestore().collection(collectionName).document().getId();
     }
+
+
 }

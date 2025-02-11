@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class BeanService {
 
     public List<Bean> getAllBeansForUser(String userId) throws FileNotFoundException {
         if (userRepository.getUserById(userId) != null) {
-            return userRepository.getUserById(userId).getBeansOwned();
+            return beanRepository.getActiveBeansForUser(userId);
         }
         throw new FileNotFoundException("User does not exist");
     }
@@ -62,5 +63,18 @@ public class BeanService {
             return beanRepository.getBeanById(beanRef.getId());
         }
         throw new FileNotFoundException("User does not exist");
+    }
+
+    public void deleteBean(String beanId, String UID) throws FileNotFoundException {
+        beanRepository.updateDocumentField(beanId, "isActive", false);
+        List<DocumentReference> beanRefs = new ArrayList<>(((List<DocumentReference>) userRepository.getDocumentField(UID, "beansOwned")));
+        DocumentReference beanToRemove = beanRefs.stream()
+                .filter(doc -> doc.getId().equals(beanId))
+                .findFirst().orElse(null);
+        if (beanToRemove != null) {
+            beanRefs.remove(beanToRemove);
+            userRepository.updateDocumentField(UID,"beansOwned",beanRefs);
+        }
+
     }
 }

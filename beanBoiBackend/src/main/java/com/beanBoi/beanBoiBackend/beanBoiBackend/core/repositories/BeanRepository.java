@@ -3,10 +3,16 @@ package com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Bean;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.DocumentData;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.firestore.repositories.FirestoreImplementation;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.Query;
+import com.google.cloud.firestore.QuerySnapshot;
 import org.springframework.stereotype.Repository;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 
 @Repository
@@ -69,6 +75,23 @@ public class BeanRepository extends DocumentRepository{
     }
 
 
+
+    public List<Bean> getActiveBeansForUser(String uid) {
+        CollectionReference collectionReference = firestoreImplementation.getCollectionReference(collectionName);
+        Query isActive =  collectionReference.whereEqualTo("uid", uid).whereEqualTo("isActive", true);
+        ApiFuture<QuerySnapshot> querySnapshot = isActive.get();
+        try {
+
+            return querySnapshot.get().getDocuments().stream()
+                    .map(queryDocumentSnapshot ->  (Bean) getFromMap(queryDocumentSnapshot.getData()))
+                    .toList();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
     public Bean verifyBean(DocumentReference reference) {
         Bean bean = new Bean();
