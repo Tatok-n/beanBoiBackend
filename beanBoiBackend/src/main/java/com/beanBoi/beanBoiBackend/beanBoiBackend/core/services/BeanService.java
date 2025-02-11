@@ -36,6 +36,13 @@ public class BeanService {
         throw new FileNotFoundException("Bean does not exist");
     }
 
+    public void updateBean(String id, Map<String,Object> beanMap, String uid) throws FileNotFoundException {
+        Bean bean = (Bean) beanRepository.getFromMap(beanMap);
+        bean.setUid(uid);
+        beanRepository.saveDocumentWithId(id, bean);
+
+    }
+
     public Bean addBeanToUser(Bean bean, String uid) throws FileNotFoundException {
         if (userRepository.getUserById(uid) != null) {
             DocumentReference beanRef = beanRepository.saveDocument(bean);

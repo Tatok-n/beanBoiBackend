@@ -37,6 +37,12 @@ public class BeanController {
         beanService.createNewBean(bean,userId);
     }
 
+    @PostMapping("/users/{userId}/beans/{beanId}")
+    public void updateBean(@RequestBody Map<String,Object> bean, @PathVariable String userId, @PathVariable String beanId) throws FileNotFoundException {
+        System.out.println(bean);
+        beanService.updateBean(beanId,bean,userId);
+    }
+
     @DeleteMapping("/users/{userId}/beans/{beanId}")
     public void deleteBean(@PathVariable String beanId, @PathVariable String userId) throws FileNotFoundException {
         beanService.deleteBean(beanId,userId);
