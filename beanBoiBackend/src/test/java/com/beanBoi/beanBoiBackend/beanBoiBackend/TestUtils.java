@@ -31,6 +31,9 @@ public class TestUtils {
     }
     public Bean getTestBean() {
         Bean bean = new Bean();
+        bean.setName("Nice beans");
+        bean.setOrigin("Tanzania Peaberry");
+        bean.setProcess("Natural");
         bean.setName("TanzaniaPeaberry");
         bean.setAltitude(1200);
         bean.setPrice(12.5f);
@@ -45,11 +48,13 @@ public class TestUtils {
 
     public HashMap<String, Object> getBeanMap() {
         HashMap<String, Object> map = new HashMap<>();
-        map.put("Name", "TanzaniaPeaberry");
+        map.put("name", "Nice beans");
+        map.put("origin", "Tanzania Peaberry");
+        map.put("process", "natural");
         map.put("uid", userUID);
         map.put("price", 12.5f);
         map.put("altitude", 1200L);
-        map.put("Roaster", "Faro");
+        map.put("roaster", "Faro");
         map.put("isActive", true);
         map.put("roastDegree", 5L);
         map.put("tastingNotes", "Good stuff");

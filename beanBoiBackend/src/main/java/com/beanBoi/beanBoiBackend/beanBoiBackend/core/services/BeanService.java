@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BeanService {
@@ -39,6 +40,26 @@ public class BeanService {
             DocumentReference beanRef = beanRepository.saveDocument(bean);
             userRepository.updateDocumentListWithField(uid,beanRef,"beansOwned");
             return beanRepository.getBeanById(uid);
+        }
+        throw new FileNotFoundException("User does not exist");
+    }
+
+    public Bean createNewBean(Map<String, Object> map, String uid) throws FileNotFoundException {
+        if (userRepository.getUserById(uid) != null) {
+            Bean bean = new Bean();
+            bean.setUid(uid);
+            bean.setName((String) map.get("name"));
+            bean.setProcess((String) map.get("process"));
+            bean.setOrigin((String) map.get("origin"));
+            bean.setTastingNotes((String) map.get("tastingNotes"));
+            bean.setRoaster((String) map.get("roaster"));
+            bean.setAltitude(Long.parseLong(map.get("altitude").toString()));
+            bean.setPrice(Float.parseFloat(map.get("price").toString()));
+            bean.setRoastDegree(Long.parseLong(map.get("roastDegree").toString()));
+            bean.setActive(true);
+            DocumentReference beanRef = beanRepository.saveDocument(bean);
+            userRepository.updateDocumentListWithField(uid,beanRef,"beansOwned");
+            return beanRepository.getBeanById(beanRef.getId());
         }
         throw new FileNotFoundException("User does not exist");
     }

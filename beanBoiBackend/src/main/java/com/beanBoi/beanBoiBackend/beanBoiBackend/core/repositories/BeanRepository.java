@@ -24,9 +24,11 @@ public class BeanRepository extends DocumentRepository{
     public Map<String, Object> getAsMap(DocumentData data) {
         Bean bean = (Bean) data;
         Map<String, Object> beanMap = new HashMap<>();
-        beanMap.put("Name", bean.getName());
+        beanMap.put("name", bean.getName());
+        beanMap.put("process", bean.getProcess());
+        beanMap.put("origin", bean.getOrigin());
         beanMap.put("uid", bean.getUid());
-        beanMap.put("Roaster", bean.getRoaster());
+        beanMap.put("roaster", bean.getRoaster());
         beanMap.put("altitude", bean.getAltitude());
         beanMap.put("price", (bean.getPrice()));
         beanMap.put("roastDegree", bean.getRoastDegree());
@@ -40,9 +42,11 @@ public class BeanRepository extends DocumentRepository{
     @Override
     public DocumentData getFromMap(Map<String, Object> map) {
         Bean bean = new Bean();
-        bean.setName(map.get("Name").toString());
+        bean.setName(map.get("name").toString());
+        bean.setProcess(map.get("process").toString());
+        bean.setOrigin(map.get("origin").toString());
         bean.setUid(map.get("uid").toString());
-        bean.setRoaster(map.get("Roaster").toString());
+        bean.setRoaster(map.get("roaster").toString());
         bean.setTastingNotes(map.get("tastingNotes").toString());
         bean.setAltitude(Long.parseLong(map.get("altitude").toString()));
         bean.setPrice(Float.parseFloat(map.get("price").toString()));

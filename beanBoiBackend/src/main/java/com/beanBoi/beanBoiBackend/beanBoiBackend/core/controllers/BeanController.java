@@ -34,6 +34,6 @@ public class BeanController {
     @PostMapping("/users/{userId}/beans/")
     public void addBean(@RequestBody Map<String,Object> bean, @PathVariable String userId) throws FileNotFoundException {
         System.out.println(bean);
-        beanService.addBeanToUser((Bean) beanRepository.getFromMap(bean),userId);
+        beanService.createNewBean(bean,userId);
     }
 }
