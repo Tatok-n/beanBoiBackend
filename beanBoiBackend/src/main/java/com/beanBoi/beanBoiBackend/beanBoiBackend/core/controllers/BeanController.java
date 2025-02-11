@@ -4,9 +4,7 @@ import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Bean;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.BeanRepository;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.services.BeanService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
 import java.util.List;
@@ -31,5 +29,11 @@ public class BeanController {
     public Map<String, Object> getBean(@PathVariable String beanId) throws FileNotFoundException {
         System.out.println(beanId);
         return beanRepository.getAsMap(beanService.getBeanById(beanId));
+    }
+
+    @PostMapping("/users/{userId}/beans/")
+    public void addBean(@RequestBody Map<String,Object> bean, @PathVariable String userId) throws FileNotFoundException {
+        System.out.println(bean);
+        beanService.addBeanToUser((Bean) beanRepository.getFromMap(bean),userId);
     }
 }
