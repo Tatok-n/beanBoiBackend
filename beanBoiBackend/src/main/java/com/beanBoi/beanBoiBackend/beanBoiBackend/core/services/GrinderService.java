@@ -1,5 +1,10 @@
 package com.beanBoi.beanBoiBackend.beanBoiBackend.core.services;
 
+import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Grinder;
+import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.GrinderRepository;
+import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.UserRepository;
+import com.google.cloud.firestore.DocumentReference;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -10,8 +15,12 @@ import java.util.stream.IntStream;
 
 @Service
 public class GrinderService {
-    String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
+    @Autowired
+    private GrinderRepository grinderRepository;
+    String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    @Autowired
+    private UserRepository userRepository;
 
 
     public List<String> createAlphabeticalList (char startLetter, char endLetter) {
@@ -78,12 +87,47 @@ public class GrinderService {
         return individualSettingLists;
     }
 
+    public List<Map<String, Object>> getGrindersForUser(String uid) {
+        List<Grinder> grinders = grinderRepository.getGrindersForUser(uid);
+        return grinders.stream().map(grinderRepository::getAsMap).toList();
+    }
+
+
+    public Grinder addGrinderToUser(Map<String, Object> map, String uid) {
+        Grinder grinder = new Grinder();
+        grinder.setActive(true);
+        grinder.setUid(uid);
+        grinder.setName(map.get("name").toString());
+        grinder.setGrindSetting(getSettingList((List<Map<String, Object>>) map.get("settings")));
+        grinder.setActive(false);
+
+        DocumentReference grinderRef = grinderRepository.saveDocument(grinder);
+        userRepository.updateDocumentListWithField(uid, grinderRef, "grinders");
+        grinder.setId(grinderRef.getId());
+        return grinder;
+    }
+
+    public Grinder editGrinder(Map<String, Object> map, String id, String uid) {
+        Grinder grinder = grinderRepository.getGrinderById(id);
+        grinder.setActive(Boolean.parseBoolean(map.get("isActive").toString()));
+        grinder.setName(map.get("name").toString());
+        grinder.setGrindSetting(getSettingList((List<Map<String, Object>>) map.get("settings")));
+
+        grinderRepository.saveDocumentWithId(id, grinder);
+        return grinder;
+    }
+
+    public Grinder deleteGrinder(String id) {
+        Grinder grinder = grinderRepository.getGrinderById(id);
+        grinder.setActive(false);
+        grinderRepository.saveDocumentWithId(id, grinder);
+        return grinder;
+    }
+
     public List<String> getSettingList (List<Map<String, Object>> settingRequests) {
         List<List<String>> getIndividualSettingLists = getIndividualSettingList(settingRequests);
         List<String> settings = new ArrayList<>();
-        int maxSize = 1;
-
-        for (List<String> settingList : getIndividualSettingLists) maxSize *= settingList.size();
+        
         if (getIndividualSettingLists.size() == 1) return settings;
 
         String currString = "";

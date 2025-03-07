@@ -1,14 +1,21 @@
 package com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories;
 
+import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Bean;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.DocumentData;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Grinder;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.firestore.repositories.FirestoreImplementation;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.Query;
+import com.google.cloud.firestore.QuerySnapshot;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 @Repository
 public class GrinderRepository extends DocumentRepository{
 
@@ -48,6 +55,21 @@ public class GrinderRepository extends DocumentRepository{
         grinder.setGrindSetting((List<String>) map.get("settings"));
         grinder.setId((String) map.get("id"));
         return grinder;
+    }
+
+    public List<Grinder> getGrindersForUser(String uid) {
+        CollectionReference collectionReference = firestoreImplementation.getCollectionReference(collectionName);
+        Query isActive =  collectionReference.whereEqualTo("uid", uid).whereEqualTo("isActive", true);
+        ApiFuture<QuerySnapshot> querySnapshot = isActive.get();
+        try {
+            return querySnapshot.get().getDocuments().stream()
+                    .map(queryDocumentSnapshot ->  (Grinder) getFromMap(queryDocumentSnapshot.getData()))
+                    .toList();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Grinder getGrinderById(String grinderId) {
