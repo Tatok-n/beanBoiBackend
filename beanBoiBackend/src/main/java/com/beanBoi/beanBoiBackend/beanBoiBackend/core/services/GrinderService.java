@@ -99,7 +99,6 @@ public class GrinderService {
         grinder.setUid(uid);
         grinder.setName(map.get("name").toString());
         grinder.setGrindSetting(getSettingList((List<Map<String, Object>>) map.get("settings")));
-        grinder.setActive(false);
 
         DocumentReference grinderRef = grinderRepository.saveDocument(grinder);
         userRepository.updateDocumentListWithField(uid, grinderRef, "grinders");
@@ -128,7 +127,7 @@ public class GrinderService {
         List<List<String>> getIndividualSettingLists = getIndividualSettingList(settingRequests);
         List<String> settings = new ArrayList<>();
         
-        if (getIndividualSettingLists.size() == 1) return settings;
+        if (getIndividualSettingLists.size() == 1) return getIndividualSettingLists.getFirst();
 
         String currString = "";
         int[] indices = new int[getIndividualSettingLists.size()];
