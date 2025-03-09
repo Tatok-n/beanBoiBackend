@@ -35,6 +35,7 @@ public class GrinderRepository extends DocumentRepository{
         grinderMap.put("isActive", grinder.isActive());
         grinderMap.put("settings", grinder.getGrindSetting());
         grinderMap.put("id", grinder.getId());
+        grinderMap.put("grindSettingRequests", grinder.getGrindSettingRequests());
         return grinderMap;
     }
 
@@ -53,6 +54,7 @@ public class GrinderRepository extends DocumentRepository{
         grinder.setUid((String) map.get("uid"));
         grinder.setActive((boolean) map.get("isActive"));
         grinder.setGrindSetting((List<String>) map.get("settings"));
+        grinder.setGrindSettingRequests((List<Map<String, Object>>) map.get("grindSettingRequests"));
         grinder.setId((String) map.get("id"));
         return grinder;
     }

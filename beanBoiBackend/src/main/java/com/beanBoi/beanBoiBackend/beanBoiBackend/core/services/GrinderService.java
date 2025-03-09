@@ -98,7 +98,9 @@ public class GrinderService {
         grinder.setActive(true);
         grinder.setUid(uid);
         grinder.setName(map.get("name").toString());
+        grinder.setGrindSettingRequests((List<Map<String, Object>>) map.get("settings"));
         grinder.setGrindSetting(getSettingList((List<Map<String, Object>>) map.get("settings")));
+
 
         DocumentReference grinderRef = grinderRepository.saveDocument(grinder);
         userRepository.updateDocumentListWithField(uid, grinderRef, "grinders");
@@ -110,6 +112,7 @@ public class GrinderService {
         Grinder grinder = grinderRepository.getGrinderById(id);
         grinder.setActive(Boolean.parseBoolean(map.get("isActive").toString()));
         grinder.setName(map.get("name").toString());
+        grinder.setGrindSettingRequests((List<Map<String, Object>>) map.get("settings"));
         grinder.setGrindSetting(getSettingList((List<Map<String, Object>>) map.get("settings")));
 
         grinderRepository.saveDocumentWithId(id, grinder);
