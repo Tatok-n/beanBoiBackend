@@ -64,6 +64,7 @@ public class BeanService {
             bean.setAltitude(Long.parseLong(map.get("altitude").toString()));
             bean.setPrice(Float.parseFloat(map.get("price").toString()));
             bean.setRoastDegree(Long.parseLong(map.get("roastDegree").toString()));
+            bean.setTimesPurchased(0);
             bean.setActive(true);
             DocumentReference beanRef = beanRepository.saveDocument(bean);
             userRepository.updateDocumentListWithField(uid,beanRef,"beansOwned");

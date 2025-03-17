@@ -40,6 +40,7 @@ public class BeanRepository extends DocumentRepository{
         beanMap.put("roastDegree", bean.getRoastDegree());
         beanMap.put("tastingNotes", bean.getTastingNotes());
         beanMap.put("isActive", bean.isActive());
+        beanMap.put("timesPurchased", bean.getTimesPurchased());
         beanMap.put("id", bean.getId());
 
         return beanMap;
@@ -58,6 +59,7 @@ public class BeanRepository extends DocumentRepository{
         bean.setPrice(Float.parseFloat(map.get("price").toString()));
         bean.setRoastDegree(Long.parseLong(map.get("roastDegree").toString()));
         bean.setActive(Boolean.parseBoolean((map.get("isActive").toString())));
+        bean.setTimesPurchased(Integer.parseInt((map.get("timesPurchased").toString())));
         bean.setId(map.get("id").toString());
         return bean;
     }
