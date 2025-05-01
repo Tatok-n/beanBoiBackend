@@ -45,6 +45,10 @@ public abstract class DocumentRepository {
         return firestoreImplementation.updateDocument(collectionName,data.getId(),getAsMap(data));
     }
 
+    public DocumentReference getDocumentReference(String id) {
+        return firestoreImplementation.getDocumentReference(collectionName,id);
+    }
+
     public WriteResult updateDocumentListWithField(String id, Object data, String fieldName ) {
         DocumentReference documentReference = firestoreImplementation.getDocumentReference(collectionName,id);
         ApiFuture<WriteResult> arrayUnion = documentReference.update(fieldName, FieldValue.arrayUnion(data));
