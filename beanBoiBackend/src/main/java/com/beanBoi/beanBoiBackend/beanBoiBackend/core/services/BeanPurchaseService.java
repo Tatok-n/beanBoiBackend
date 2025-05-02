@@ -34,7 +34,7 @@ public class BeanPurchaseService {
         int timesPurchased = Integer.parseInt(beanRepository.getDocumentField(beanId, "timesPurchased").toString())  + 1;
         beanRepository.updateDocumentField(beanId, "timesPurchased", timesPurchased);
 
-        float newPrice = ((oldPrice * (timesPurchased - 1)) + pricePaid)/amountPurchased;
+        float newPrice = (((oldPrice * (timesPurchased - 1))) * amountPurchased + pricePaid) / (amountPurchased * timesPurchased);
         format.format(newPrice);
         beanRepository.updateDocumentField(beanId, "price", newPrice);
 

@@ -62,7 +62,7 @@ public class BeanService {
             bean.setTastingNotes((String) map.get("tastingNotes"));
             bean.setRoaster((String) map.get("roaster"));
             bean.setAltitude(Long.parseLong(map.get("altitude").toString()));
-            bean.setPrice(Float.parseFloat(map.get("price").toString()));
+            bean.setPrice(0);
             bean.setRoastDegree(Long.parseLong(map.get("roastDegree").toString()));
             bean.setTimesPurchased(0);
             bean.setActive(true);
