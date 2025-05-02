@@ -41,8 +41,8 @@ public class BeanPurchaseRepository extends DocumentRepository {
         beanPurchaseMap.put("isActive", beanPurchase.isActive());
         beanPurchaseMap.put("uid", beanPurchase.getUid());
         beanPurchaseMap.put("id", beanPurchase.getId());
-        beanPurchaseMap.put("purchaseDate", beanPurchase.getPurchaseDate());
-        beanPurchaseMap.put("roastDate", beanPurchase.getRoastDate());
+        beanPurchaseMap.put("purchaseDate", beanPurchase.getPurchaseDate().toString());
+        beanPurchaseMap.put("roastDate", beanPurchase.getRoastDate().toString());
         beanPurchaseMap.put("name", beanPurchase.getName());
         return beanPurchaseMap;
     }

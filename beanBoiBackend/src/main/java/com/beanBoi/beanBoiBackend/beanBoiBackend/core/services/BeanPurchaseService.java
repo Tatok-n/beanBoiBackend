@@ -30,12 +30,12 @@ public class BeanPurchaseService {
 
     public BeanPurchase purchaseBean(String name, String beanId, LocalDate dateOfPurchase, LocalDate dateOfRoast, float amountPurchased, float pricePaid,String uid) {
         BeanPurchase beanPurchase = new BeanPurchase();
-        float oldPrice = (float) beanRepository.getDocumentField(beanId, "price");
-        int timesPurchased = (int) beanRepository.getDocumentField(beanId, "timesPurchased") + 1;
+        float oldPrice = Float.parseFloat(beanRepository.getDocumentField(beanId, "price").toString());
+        int timesPurchased = Integer.parseInt(beanRepository.getDocumentField(beanId, "timesPurchased").toString())  + 1;
         beanRepository.updateDocumentField(beanId, "timesPurchased", timesPurchased);
 
         float newPrice = ((oldPrice * (timesPurchased - 1)) + pricePaid)/amountPurchased;
-        format.format(String.valueOf(newPrice));
+        format.format(newPrice);
         beanRepository.updateDocumentField(beanId, "price", newPrice);
 
         beanPurchase.setBeansPurchased(beanRepository.getBeanById(beanId));

@@ -32,9 +32,9 @@ public class BeanController {
     }
 
     @PostMapping("/users/{userId}/beans/")
-    public void addBean(@RequestBody Map<String,Object> bean, @PathVariable String userId) throws FileNotFoundException {
+    public String addBean(@RequestBody Map<String,Object> bean, @PathVariable String userId) throws FileNotFoundException {
         System.out.println(bean);
-        beanService.createNewBean(bean,userId);
+        return beanService.createNewBean(bean,userId).getId();
     }
 
     @PostMapping("/users/{userId}/beans/{beanId}")
