@@ -34,9 +34,6 @@ public class BeanPurchaseService {
         int timesPurchased = Integer.parseInt(beanRepository.getDocumentField(beanId, "timesPurchased").toString())  + 1;
         beanRepository.updateDocumentField(beanId, "timesPurchased", timesPurchased);
 
-        float newPrice = (((oldPrice * (timesPurchased - 1))) * amountPurchased + pricePaid) / (amountPurchased * timesPurchased);
-        format.format(newPrice);
-        beanRepository.updateDocumentField(beanId, "price", newPrice);
 
         beanPurchase.setBeansPurchased(beanRepository.getBeanById(beanId));
         beanPurchase.setRoastDate(dateOfRoast);
@@ -50,6 +47,7 @@ public class BeanPurchaseService {
         DocumentReference beanPurchaseRef = beanPurchaseRepository.saveDocument(beanPurchase);
         beanPurchase.setId(beanPurchaseRef.getId());
         userRepository.updateDocumentListWithField(uid,beanPurchaseRef,"beansAvailable");
+        computeNewAveragePrice(beanId,uid);
         return beanPurchase;
     }
 
@@ -88,14 +86,20 @@ public class BeanPurchaseService {
 
     }
 
+    public void computeNewAveragePrice(String beanId, String uid) {
+        List<BeanPurchase> beanPurchases = beanPurchaseRepository.getActiveBeanPurchaseForUser(uid).stream()
+                .filter(beanPurchase -> beanPurchase.getBeansPurchased().getId().equals(beanId)).toList();
+
+        float totalWeight = beanPurchases.stream().map(BeanPurchase::getAmountPurchased).reduce(0f, Float::sum);
+        float totalWeightedPrice = beanPurchases.stream().map(beanPurchase -> beanPurchase.getAmountPurchased() * beanPurchase.getPricePaid()).reduce(0f, Float::sum);
+        float averagePrice = totalWeightedPrice / totalWeight;
+
+        beanRepository.updateDocumentField(beanId, "price", averagePrice);
+    }
+
     public BeanPurchase editPurchase(String purchaseId, String name, String beanId, LocalDate newDateOfPurchase, LocalDate newDateOfRoast, float amountPurchased, float newPrice,String uid) {
         BeanPurchase beanPurchase = beanPurchaseRepository.getBeanPurchaseById(purchaseId);
-        float oldPrice = (float) beanRepository.getDocumentField(beanId, "price");
-        int timesPurchased = (int) beanRepository.getDocumentField(beanId, "timesPurchased");
-
-        float price = ((oldPrice * (timesPurchased - 1)) + newPrice)/amountPurchased;
-        format.format(String.valueOf(price));
-        beanRepository.updateDocumentField(beanId, "price", timesPurchased);
+        computeNewAveragePrice(beanId,uid);
 
         beanPurchase.setBeansPurchased(beanRepository.getBeanById(beanId));
         beanPurchase.setRoastDate(newDateOfRoast);

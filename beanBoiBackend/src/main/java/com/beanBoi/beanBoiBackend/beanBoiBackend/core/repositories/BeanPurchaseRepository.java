@@ -37,6 +37,7 @@ public class BeanPurchaseRepository extends DocumentRepository {
         Map<String, Object> beanPurchaseMap = new HashMap<>();
         beanPurchaseMap.put("amountPurchased", Float.toString(beanPurchase.getAmountPurchased()));
         beanPurchaseMap.put("amountRemaining", Float.toString(beanPurchase.getAmountRemaining()));
+        beanPurchaseMap.put("pricePaid", Float.toString(beanPurchase.getPricePaid()));
         beanPurchaseMap.put("beans", beanRepository.getAsMap(beanPurchase.getBeansPurchased()));
         beanPurchaseMap.put("isActive", beanPurchase.isActive());
         beanPurchaseMap.put("uid", beanPurchase.getUid());
@@ -52,6 +53,7 @@ public class BeanPurchaseRepository extends DocumentRepository {
         BeanPurchase beanPurchase = new BeanPurchase();
         beanPurchase.setAmountRemaining(Float.parseFloat(map.get("amountRemaining").toString()));
         beanPurchase.setAmountPurchased(Float.parseFloat(map.get("amountPurchased").toString()));
+        beanPurchase.setPricePaid(Float.parseFloat(map.get("pricePaid").toString()));
         beanPurchase.setRoastDate(LocalDate.parse(map.get("roastDate").toString()));
         beanPurchase.setPurchaseDate(LocalDate.parse(map.get("purchaseDate").toString()));
         beanPurchase.setUid((String) map.get("uid"));

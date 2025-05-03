@@ -14,4 +14,5 @@ public class BeanPurchase extends DocumentData {
     private String uid;
     private LocalDate purchaseDate;
     private LocalDate roastDate;
+    private float pricePaid;
 }
