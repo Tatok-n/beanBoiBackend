@@ -34,6 +34,6 @@ public class BeanPurchaseController {
 
     @DeleteMapping("users/{userId}/beanPurchases/{purchaseId}")
     void deleteBeanPurchase(@PathVariable String userId, @PathVariable String purchaseId, @RequestBody boolean isArchive) {
-        deleteBeanPurchase(userId, purchaseId, isArchive);
+        beanPurchaseService.deleteBeanPurchase(userId, purchaseId, isArchive);
     }
 }

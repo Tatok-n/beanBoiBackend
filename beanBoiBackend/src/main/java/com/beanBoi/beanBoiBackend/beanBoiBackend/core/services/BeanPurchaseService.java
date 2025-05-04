@@ -73,8 +73,9 @@ public class BeanPurchaseService {
     public void deleteBeanPurchase(String purchaseId, String uid, boolean isArchive) {
         if (!isArchive) {
             BeanPurchase beanPurchase = beanPurchaseRepository.getBeanPurchaseById(purchaseId);
-            Bean bean = beanRepository.getBeanById(beanPurchase.getId());
+            Bean bean = beanRepository.getBeanById(beanPurchase.getBeansPurchased().getId());
             beanRepository.updateDocumentField(bean.getId(), "timesPurchased", bean.getTimesPurchased() - 1); //eventually actually compute new average ?
+            computeNewAveragePrice(bean.getId(),uid);
         }
 
         beanPurchaseRepository.updateDocumentField(purchaseId, "isActive", false);
