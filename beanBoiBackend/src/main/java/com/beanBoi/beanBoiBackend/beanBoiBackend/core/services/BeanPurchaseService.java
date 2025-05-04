@@ -51,13 +51,16 @@ public class BeanPurchaseService {
         return beanPurchase;
     }
 
-    public BeanPurchase consumeBeans(String purchaseId, float amount) {
+    public BeanPurchase editQuantity(String purchaseId, float amount) {
         BeanPurchase beanPurchase = beanPurchaseRepository.getBeanPurchaseById(purchaseId);
         float amountRemaining = beanPurchase.getAmountRemaining();
         if (amountRemaining <= amount) {
             amountRemaining = 0;
+        } else if (amountRemaining + amount > beanPurchase.getAmountPurchased()) {
+            amountRemaining += amount;
+            beanPurchaseRepository.updateDocumentField(beanPurchase.getId(), "amountPurchased", amountRemaining);
         } else {
-            amountRemaining -= amount;
+            amountRemaining += amount;
         }
         beanPurchaseRepository.updateDocumentField(beanPurchase.getId(), "amountRemaining", amountRemaining);
         return beanPurchase;

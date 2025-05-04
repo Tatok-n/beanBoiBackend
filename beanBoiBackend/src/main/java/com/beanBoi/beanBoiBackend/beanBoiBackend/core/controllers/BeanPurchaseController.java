@@ -22,7 +22,6 @@ public class BeanPurchaseController {
         return beanPurchaseRepository.getAsMap(beanPurchaseService.purchaseBean(request.name(), request.beanId(), request.dateOfPurchase(), request.dateOfRoast(), request.amountPurchased(), request.pricePaid(), userId));
     }
 
-
     @PutMapping("/users/{userId}/beanPurchases/{purchaseId}")
     Map<String, Object> purchaseNewBean(@PathVariable String userId,@PathVariable String purchaseId, @RequestBody BeanPurchaseRequest request) {
         return beanPurchaseRepository.getAsMap(beanPurchaseService.editPurchase(purchaseId, request.name(), request.beanId(), request.dateOfPurchase(), request.dateOfRoast(), request.amountPurchased(), request.pricePaid(), userId));
@@ -31,5 +30,10 @@ public class BeanPurchaseController {
     @GetMapping("users/{userId}/beanPurchases")
     List<Map<String, Object>> getBeanPurchases(@PathVariable String userId) {
         return beanPurchaseService.getAllBeanPurchasesForUser(userId);
+    }
+
+    @DeleteMapping("users/{userId}/beanPurchases/{purchaseId}")
+    void deleteBeanPurchase(@PathVariable String userId, @PathVariable String purchaseId, @RequestBody boolean isArchive) {
+        deleteBeanPurchase(userId, purchaseId, isArchive);
     }
 }
