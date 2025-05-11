@@ -7,7 +7,7 @@ public class Recipe extends DocumentData{
     private String name;
     private String uid;
     private String description;
-    private float temperature;
+    private double temperature;
     private double duration;
-    private float ratio;
+    private double ratio;
 }

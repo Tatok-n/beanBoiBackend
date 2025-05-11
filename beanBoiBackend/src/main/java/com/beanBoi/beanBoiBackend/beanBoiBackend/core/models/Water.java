@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class Water {
-    private float water;
-    private long time;
+    private String name;
+    private double water;
+    private double time;
 }

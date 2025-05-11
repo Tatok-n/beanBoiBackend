@@ -32,21 +32,21 @@ public class RecipeRepository extends DocumentRepository{
         recipeMap.put("id", recipe.getId());
         recipeMap.put("uid", recipe.getUid());
 
-        if (recipe.getClass().equals(EspressoRecipe.class)) {
-            EspressoRecipe eRecipe = (EspressoRecipe) recipe;
+        if (recipe instanceof EspressoRecipe eRecipe) {
             recipeMap.put("type", "Espresso");
             List<Map <String,Object>> waterFlow = eRecipe.getWaterFlow().stream().map(water -> {
                 Map<String, Object> waterMap = new HashMap<>();
+                waterMap.put("name", water.getName());
                 waterMap.put("flow", String.valueOf(water.getWater()));
                 waterMap.put("time", water.getTime());
                 return waterMap;
             }).toList();
             recipeMap.put("water flow", waterFlow);
-        } else {
-            V60Recipe vRecipe = (V60Recipe) recipe;
+        } else if (recipe instanceof V60Recipe v60Recipe) {
             recipeMap.put("type", "V60");
-            List<Map <String,Object>> waterAmount = vRecipe.getWaterAmount().stream().map(water -> {
+            List<Map <String,Object>> waterAmount = v60Recipe.getWaterAmount().stream().map(water -> {
                 Map<String, Object> waterMap = new HashMap<>();
+                waterMap.put("name", water.getName());
                 waterMap.put("amount", String.valueOf(water.getWater()));
                 waterMap.put("time", water.getTime());
                 return waterMap;
@@ -74,6 +74,7 @@ public class RecipeRepository extends DocumentRepository{
             List<Map<String, Object>> waterFlow = (List<Map<String, Object>>) map.get("water flow");
             List<Water> waterList =  waterFlow.stream().map(waterMap -> {
                 Water water = new Water();
+                water.setName((String) waterMap.get("name"));
                 water.setTime((Long) waterMap.get("time"));
                 water.setWater(Float.parseFloat(waterMap.get("flow").toString()));
                 return water;
