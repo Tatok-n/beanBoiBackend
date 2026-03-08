@@ -2,18 +2,21 @@ package com.beanBoi.beanBoiBackend.beanBoiBackend.core.services;
 
 
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Bean;
+import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.User;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.BeanRepository;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.UserRepository;
-import com.google.cloud.firestore.DocumentReference;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class BeanService {
 
     @Autowired
@@ -23,66 +26,52 @@ public class BeanService {
 
 
     public List<Bean> getAllBeansForUser(String userId) throws FileNotFoundException {
-        if (userRepository.getUserById(userId) != null) {
-            return beanRepository.getActiveBeansForUser(userId);
+        if (userRepository.findById(userId).isPresent()) {
+            return beanRepository.findAllByUid(userId);
         }
         throw new FileNotFoundException("User does not exist");
     }
 
     public Bean getBeanById(String id) throws FileNotFoundException {
-        if (beanRepository.getBeanById(id) != null) {
-            return beanRepository.getBeanById(id);
+        if (beanRepository.findById(id).isPresent()) {
+            return beanRepository.findById(id).get();
         }
         throw new FileNotFoundException("Bean does not exist");
     }
 
-    public void updateBean(String id, Map<String,Object> beanMap, String uid) throws FileNotFoundException {
-        Bean bean = (Bean) beanRepository.getFromMap(beanMap);
+    public void updateBean(String uid, Bean bean, String beanId) throws FileNotFoundException {
         bean.setUid(uid);
-        beanRepository.saveDocumentWithId(id, bean);
-
+        bean.setId(beanId);
+        beanRepository.save(bean);
     }
 
     public Bean addBeanToUser(Bean bean, String uid) throws FileNotFoundException {
-        if (userRepository.getUserById(uid) != null) {
-            DocumentReference beanRef = beanRepository.saveDocument(bean);
-            userRepository.updateDocumentListWithField(uid,beanRef,"beansOwned");
-            return beanRepository.getBeanById(uid);
+        // TODO : Look into switching to simply passing bean ID
+        if (userRepository.findById(uid).isPresent() && beanRepository.findById(bean.getId()).isPresent()) {
+            bean.setUid(uid);
+            return beanRepository.save(bean);
         }
         throw new FileNotFoundException("User does not exist");
     }
 
-    public Bean createNewBean(Map<String, Object> map, String uid) throws FileNotFoundException {
-        if (userRepository.getUserById(uid) != null) {
-            Bean bean = new Bean();
+    public Bean createNewBean(Bean bean, String uid) throws FileNotFoundException {
+        if (userRepository.findById(uid).isPresent()) {
             bean.setUid(uid);
-            bean.setName((String) map.get("name"));
-            bean.setProcess((String) map.get("process"));
-            bean.setOrigin((String) map.get("origin"));
-            bean.setTastingNotes((String) map.get("tastingNotes"));
-            bean.setRoaster((String) map.get("roaster"));
-            bean.setAltitude(Long.parseLong(map.get("altitude").toString()));
-            bean.setPrice(0);
-            bean.setRoastDegree(Long.parseLong(map.get("roastDegree").toString()));
-            bean.setTimesPurchased(0);
-            bean.setActive(true);
-            DocumentReference beanRef = beanRepository.saveDocument(bean);
-            userRepository.updateDocumentListWithField(uid,beanRef,"beansOwned");
-            return beanRepository.getBeanById(beanRef.getId());
+            return beanRepository.save(bean);
         }
         throw new FileNotFoundException("User does not exist");
     }
 
     public void deleteBean(String beanId, String UID) throws FileNotFoundException {
-        beanRepository.updateDocumentField(beanId, "isActive", false);
-        List<DocumentReference> beanRefs = new ArrayList<>(((List<DocumentReference>) userRepository.getDocumentField(UID, "beansOwned")));
-        DocumentReference beanToRemove = beanRefs.stream()
-                .filter(doc -> doc.getId().equals(beanId))
-                .findFirst().orElse(null);
-        if (beanToRemove != null) {
-            beanRefs.remove(beanToRemove);
-            userRepository.updateDocumentField(UID,"beansOwned",beanRefs);
+        if (beanRepository.findById(beanId).isPresent() && userRepository.findById(UID).isPresent()) {
+            User user = userRepository.findById(UID).get();
+            Bean bean = beanRepository.findById(beanId).get();
+            bean.setActive(false);
+            beanRepository.save(bean);
+            user.getBeansOwned().remove(bean);
+            userRepository.save(user);
         }
+        throw new FileNotFoundException("User or bean does not exist");
 
     }
 }

@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface BeanRepository extends MongoRepository<Bean, String> {
-    List<Bean> findAllByUserIdAndActive(Integer userId, Boolean active);
+    List<Bean> findAllByUid(String uid);
 
 }

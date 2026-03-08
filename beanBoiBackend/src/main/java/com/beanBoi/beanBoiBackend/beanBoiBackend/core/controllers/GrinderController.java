@@ -6,6 +6,7 @@ import com.beanBoi.beanBoiBackend.beanBoiBackend.core.services.GrinderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
 
@@ -20,20 +21,18 @@ public class GrinderController {
 
 
     @GetMapping("users/{uid}/grinders")
-    public List<Map<String, Object>> getGrindersForUser(@PathVariable String uid) {
+    public List<Grinder> getGrindersForUser(@PathVariable String uid) throws FileNotFoundException {
         return grinderService.getGrindersForUser(uid);
     }
 
     @PutMapping("users/{uid}/grinders")
-    public Map<String, Object> addGrinder(@PathVariable String uid, @RequestBody Map<String, Object> map) {
-        Grinder newGrinder = grinderService.addGrinderToUser(map, uid);
-        return grinderRepository.getAsMap(newGrinder);
+    public Grinder addGrinder(@PathVariable String uid, @RequestBody Grinder grinder) throws FileNotFoundException {
+        return grinderService.addGrinderToUser(grinder, uid);
     }
 
     @PostMapping("users/{uid}/grinders/{id}")
-    public Map<String, Object> updateGrinder(@PathVariable String uid, @PathVariable String id, @RequestBody Map<String, Object> map) {
-        Grinder newGrinder = grinderService.editGrinder(map,id, uid);
-        return grinderRepository.getAsMap(newGrinder);
+    public Grinder updateGrinder(@PathVariable String uid, @PathVariable String id, @RequestBody Grinder grinder) throws FileNotFoundException {
+        return  grinderService.editGrinder(grinder,id, uid);
     }
 
     @DeleteMapping("users/{uid}/grinders/{id}")

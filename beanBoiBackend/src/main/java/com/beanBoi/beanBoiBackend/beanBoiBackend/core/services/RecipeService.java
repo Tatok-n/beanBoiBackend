@@ -5,20 +5,19 @@ import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Recipe;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.V60Recipe;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Water;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.RecipeRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class RecipeService {
 
     private final RecipeRepository recipeRepository;
-
-    public RecipeService(RecipeRepository recipeRepository) {
-        this.recipeRepository = recipeRepository;
-    }
 
     public Recipe createRecipe(List<Map<String, Object>> waterMap, String description, double temperature, double ratio, double duration, String name, String uid, boolean isEspresso) {
         if (isEspresso) {
@@ -33,7 +32,7 @@ public class RecipeService {
             }).toList();
             recipe.setWaterFlow(waterList);
             setCommonAttributes(temperature, ratio, duration, name, recipe, description, uid);
-            recipeRepository.saveDocument(recipe);
+            recipeRepository.save(recipe);
             return recipe;
         } else {
             V60Recipe recipe = new V60Recipe();
@@ -47,7 +46,7 @@ public class RecipeService {
             }).toList();
             recipe.setWaterAmount(waterList);
             setCommonAttributes(temperature, ratio, duration, name, recipe, description, uid);
-            recipeRepository.saveDocument(recipe);
+            recipeRepository.save(recipe);
             return recipe;
         }
     }

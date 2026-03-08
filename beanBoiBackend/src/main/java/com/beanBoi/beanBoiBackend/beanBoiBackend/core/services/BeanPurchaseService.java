@@ -5,120 +5,160 @@ import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.BeanPurchase;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.BeanPurchaseRepository;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.BeanRepository;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.UserRepository;
-import com.google.cloud.firestore.DocumentReference;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.text.DecimalFormat;
+import java.io.FileNotFoundException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class BeanPurchaseService {
 
-    @Autowired
-    BeanRepository beanRepository;
-
-    DecimalFormat format = new DecimalFormat("#.00");
-    @Autowired
-    private BeanPurchaseRepository beanPurchaseRepository;
-    @Autowired
-    private UserRepository userRepository;
+    private final BeanRepository beanRepository;
+    private final BeanPurchaseRepository beanPurchaseRepository;
+    private final UserRepository userRepository;
 
 
-    public BeanPurchase purchaseBean(String name, String beanId, LocalDate dateOfPurchase, LocalDate dateOfRoast, float amountPurchased, float pricePaid,String uid) {
-        BeanPurchase beanPurchase = new BeanPurchase();
-        float oldPrice = Float.parseFloat(beanRepository.getDocumentField(beanId, "price").toString());
-        int timesPurchased = Integer.parseInt(beanRepository.getDocumentField(beanId, "timesPurchased").toString())  + 1;
-        beanRepository.updateDocumentField(beanId, "timesPurchased", timesPurchased);
+    public BeanPurchase purchaseBean(String name, String beanId, LocalDate dateOfPurchase,
+                                     LocalDate dateOfRoast, float amountPurchased, float pricePaid, String uid) throws FileNotFoundException {
 
+        // Verify user exists
+        if (!userRepository.existsById(uid)) {
+            throw new FileNotFoundException("User does not exist");
+        }
 
-        beanPurchase.setBeansPurchased(beanRepository.getBeanById(beanId));
-        beanPurchase.setRoastDate(dateOfRoast);
-        beanPurchase.setPurchaseDate(dateOfPurchase);
-        beanPurchase.setAmountPurchased(amountPurchased);
-        beanPurchase.setAmountRemaining(amountPurchased);
-        beanPurchase.setActive(true);
-        beanPurchase.setUid(uid);
-        beanPurchase.setName(name.isBlank() ? beanRepository.getDocumentField(beanId,"name") + "-" + beanRepository.getDocumentField(beanId,"roaster") : name);
+        // Update bean stats
+        Bean bean = beanRepository.findById(beanId)
+                .orElseThrow(() -> new FileNotFoundException("Bean does not exist"));
+        bean.setTimesPurchased(bean.getTimesPurchased() + 1);
+        beanRepository.save(bean);
 
-        DocumentReference beanPurchaseRef = beanPurchaseRepository.saveDocument(beanPurchase);
-        beanPurchase.setId(beanPurchaseRef.getId());
-        userRepository.updateDocumentListWithField(uid,beanPurchaseRef,"beansAvailable");
-        computeNewAveragePrice(beanId,uid);
-        return beanPurchase;
+        BeanPurchase purchase = new BeanPurchase();
+        purchase.setBeansPurchased(bean);
+        purchase.setRoastDate(dateOfRoast);
+        purchase.setPurchaseDate(dateOfPurchase);
+        purchase.setAmountPurchased(amountPurchased);
+        purchase.setAmountRemaining(amountPurchased);
+        purchase.setActive(true);
+        purchase.setUid(uid);
+        purchase.setPricePaid(pricePaid);
+        purchase.setName(name.isBlank() ? bean.getName() + "-" + bean.getRoaster() : name);
+
+        BeanPurchase saved = beanPurchaseRepository.save(purchase);
+        computeNewAveragePrice(beanId, uid);
+        return saved;
     }
 
-    public BeanPurchase editQuantity(String purchaseId, float amount) {
-        BeanPurchase beanPurchase = beanPurchaseRepository.getBeanPurchaseById(purchaseId);
-        float amountRemaining = beanPurchase.getAmountRemaining();
-        if (amountRemaining <= amount) {
-            amountRemaining = 0;
-        } else if (amountRemaining + amount > beanPurchase.getAmountPurchased()) {
-            amountRemaining += amount;
-            beanPurchaseRepository.updateDocumentField(beanPurchase.getId(), "amountPurchased", amountRemaining);
+    public BeanPurchase editQuantity(String purchaseId, float amount) throws FileNotFoundException {
+        BeanPurchase purchase = beanPurchaseRepository.findById(purchaseId)
+                .orElseThrow(() -> new FileNotFoundException("Purchase does not exist"));
+
+        float remaining = purchase.getAmountRemaining();
+        if (remaining <= amount) {
+            remaining = 0;
+        } else if (remaining + amount > purchase.getAmountPurchased()) {
+            purchase.setAmountPurchased(remaining + amount);
+            remaining += amount;
         } else {
-            amountRemaining += amount;
+            remaining += amount;
         }
-        beanPurchaseRepository.updateDocumentField(beanPurchase.getId(), "amountRemaining", amountRemaining);
-        return beanPurchase;
+
+        purchase.setAmountRemaining(remaining);
+        return beanPurchaseRepository.save(purchase);
     }
 
-    public void editRemainingAmount(String purchaseId, float amount) {
-        beanPurchaseRepository.updateDocumentField(purchaseId, "amountRemaining", amount);
+    public void editRemainingAmount(String purchaseId, float amount) throws FileNotFoundException {
+        BeanPurchase purchase = beanPurchaseRepository.findById(purchaseId)
+                .orElseThrow(() -> new FileNotFoundException("Purchase not found"));
+        purchase.setAmountRemaining(amount);
+        beanPurchaseRepository.save(purchase);
     }
 
-    public void deleteBeanPurchase(String purchaseId, String uid, boolean isArchive) {
+
+    public void deleteBeanPurchase(String purchaseId, String uid, boolean isArchive) throws FileNotFoundException {
+        BeanPurchase purchase = beanPurchaseRepository.findById(purchaseId)
+                .orElseThrow(() -> new FileNotFoundException("Purchase not found"));
+
+
         if (!isArchive) {
-            BeanPurchase beanPurchase = beanPurchaseRepository.getBeanPurchaseById(purchaseId);
-            Bean bean = beanRepository.getBeanById(beanPurchase.getBeansPurchased().getId());
-            beanRepository.updateDocumentField(bean.getId(), "timesPurchased", bean.getTimesPurchased() - 1); //eventually actually compute new average ?
-            computeNewAveragePrice(bean.getId(),uid);
+            // Decrement bean stats
+            Bean bean = beanRepository.findById(purchase.getBeansPurchased().getId())
+                    .orElseThrow(() -> new FileNotFoundException("Bean not found"));
+            bean.setTimesPurchased(Math.max(0, bean.getTimesPurchased() - 1));
+            beanRepository.save(bean);
+            computeNewAveragePrice(bean.getId(), uid);
         }
 
-        beanPurchaseRepository.updateDocumentField(purchaseId, "isActive", false);
-        List<DocumentReference> beanRefs = new ArrayList<>(((List<DocumentReference>) userRepository.getDocumentField(uid, "beansAvailable")));
-        DocumentReference beanToRemove = beanRefs.stream()
-                .filter(doc -> doc.getId().equals(purchaseId))
-                .findFirst().orElse(null);
-        if (beanToRemove != null) {
-            beanRefs.remove(beanToRemove);
-            userRepository.updateDocumentField(uid,"beansAvailable",beanRefs);
+        // Soft delete
+        purchase.setActive(false);
+        beanPurchaseRepository.save(purchase);
+    }
+
+
+    private void computeNewAveragePrice(String beanId, String uid) {
+        List<BeanPurchase> purchases = beanPurchaseRepository
+                .findByUidAndActiveTrueAndBeansPurchasedId(uid, true, beanId);
+
+        if (purchases.isEmpty()) return;
+
+        float totalWeight = purchases.stream()
+                .map(BeanPurchase::getAmountPurchased)
+                .reduce(0f, Float::sum);
+
+        float totalPrice = purchases.stream()
+                .map(p -> p.getAmountPurchased() * p.getPricePaid())
+                .reduce(0f, Float::sum);
+
+        if (totalWeight > 0) {
+            float avgPrice = totalPrice / totalWeight;
+            Bean bean = beanRepository.findById(beanId).orElseThrow();
+            bean.setPrice(avgPrice);
+            beanRepository.save(bean);
+        }
+    }
+
+    /**
+     * Edit complete purchase details
+     */
+    public BeanPurchase editPurchase(String purchaseId, String name, String beanId,
+                                     LocalDate newDateOfPurchase, LocalDate newDateOfRoast,
+                                     float amountPurchased, float newPrice, String uid) throws FileNotFoundException {
+
+        BeanPurchase purchase = beanPurchaseRepository.findById(purchaseId)
+                .orElseThrow(() -> new FileNotFoundException("Purchase not found"));
+        Bean bean = beanRepository.findById(beanId)
+                .orElseThrow(() -> new FileNotFoundException("Bean not found"));
+
+        if (!purchase.getUid().equals(uid)) {
+            throw new FileNotFoundException("Not authorized");
         }
 
+        // Recalculate before edit
+        computeNewAveragePrice(beanId, uid);
+
+        // Update purchase
+        purchase.setBeansPurchased(bean);
+        purchase.setRoastDate(newDateOfRoast);
+        purchase.setPurchaseDate(newDateOfPurchase);
+        purchase.setAmountPurchased(amountPurchased);
+        purchase.setPricePaid(newPrice);
+        purchase.setName(name.isBlank() ? bean.getName() + "-" + bean.getRoaster() : name);
+
+        return beanPurchaseRepository.save(purchase);
     }
 
-    public void computeNewAveragePrice(String beanId, String uid) {
-        List<BeanPurchase> beanPurchases = beanPurchaseRepository.getActiveBeanPurchaseForUser(uid).stream()
-                .filter(beanPurchase -> beanPurchase.getBeansPurchased().getId().equals(beanId)).toList();
-
-        float totalWeight = beanPurchases.stream().map(BeanPurchase::getAmountPurchased).reduce(0f, Float::sum);
-        float totalWeightedPrice = beanPurchases.stream().map(beanPurchase -> beanPurchase.getAmountPurchased() * beanPurchase.getPricePaid()).reduce(0f, Float::sum);
-        float averagePrice = totalWeightedPrice / totalWeight;
-
-        beanRepository.updateDocumentField(beanId, "price", averagePrice);
-    }
-
-    public BeanPurchase editPurchase(String purchaseId, String name, String beanId, LocalDate newDateOfPurchase, LocalDate newDateOfRoast, float amountPurchased, float newPrice,String uid) {
-        BeanPurchase beanPurchase = beanPurchaseRepository.getBeanPurchaseById(purchaseId);
-        computeNewAveragePrice(beanId,uid);
-
-        beanPurchase.setBeansPurchased(beanRepository.getBeanById(beanId));
-        beanPurchase.setRoastDate(newDateOfRoast);
-        beanPurchase.setPurchaseDate(newDateOfPurchase);
-        beanPurchase.setAmountPurchased(amountPurchased);
-        beanPurchase.setAmountRemaining(beanPurchase.getAmountRemaining());
-        beanPurchase.setActive(true);
-        beanPurchase.setUid(uid);
-        beanPurchase.setName(name.isBlank() ? beanRepository.getDocumentField(beanId,"name") + "-" + beanRepository.getDocumentField(beanId,"roaster") : name);
-
-        DocumentReference beanPurchaseRef = beanPurchaseRepository.saveDocument(beanPurchase);
-        return beanPurchase;
-    }
-
-    public List<Map<String, Object>> getAllBeanPurchasesForUser(String uid) {
-        return beanPurchaseRepository.getActiveBeanPurchaseForUser(uid).stream().map(purchase -> beanPurchaseRepository.getAsMap(purchase)).toList();
+    /**
+     * Get all active purchases for user (pure uid query)
+     */
+    public List<BeanPurchase> getAllBeanPurchasesForUser(String uid) throws FileNotFoundException {
+        if (!userRepository.existsById(uid)) {
+            throw new FileNotFoundException("User does not exist");
+        }
+        return beanPurchaseRepository.findByUidAndActiveTrue(uid, true);
     }
 }

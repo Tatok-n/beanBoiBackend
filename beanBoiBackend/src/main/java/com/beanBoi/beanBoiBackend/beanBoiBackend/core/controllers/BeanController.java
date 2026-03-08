@@ -13,34 +13,28 @@ import java.util.Map;
 @RestController
 public class BeanController {
 
-
     @Autowired
     BeanService beanService;
-    @Autowired
-    BeanRepository beanRepository;
 
 
     @GetMapping("/users/{uid}/beans")
-    public List<Map<String,Object>> getUserBeans(@PathVariable String uid) throws FileNotFoundException {
-        return beanService.getAllBeansForUser(String.valueOf(uid)).stream().map(bean -> beanRepository.getAsMap(bean)).toList();
+    public List<Bean> getUserBeans(@PathVariable String uid) throws FileNotFoundException {
+        return beanService.getAllBeansForUser(String.valueOf(uid));
     }
 
     @GetMapping("/beans/{beanId}")
-    public Map<String, Object> getBean(@PathVariable String beanId) throws FileNotFoundException {
-        System.out.println(beanId);
-        return beanRepository.getAsMap(beanService.getBeanById(beanId));
+    public Bean getBean(@PathVariable String beanId) throws FileNotFoundException {
+        return beanService.getBeanById(beanId);
     }
 
     @PostMapping("/users/{userId}/beans/")
-    public String addBean(@RequestBody Map<String,Object> bean, @PathVariable String userId) throws FileNotFoundException {
-        System.out.println(bean);
+    public String addBean(@RequestBody Bean bean, @PathVariable String userId) throws FileNotFoundException {
         return beanService.createNewBean(bean,userId).getId();
     }
 
     @PostMapping("/users/{userId}/beans/{beanId}")
-    public void updateBean(@RequestBody Map<String,Object> bean, @PathVariable String userId, @PathVariable String beanId) throws FileNotFoundException {
-        System.out.println(bean);
-        beanService.updateBean(beanId,bean,userId);
+    public void updateBean(@RequestBody Bean bean, @PathVariable String userId, @PathVariable String beanId) throws FileNotFoundException {
+        beanService.updateBean(userId,bean, beanId);
     }
 
     @DeleteMapping("/users/{userId}/beans/{beanId}")

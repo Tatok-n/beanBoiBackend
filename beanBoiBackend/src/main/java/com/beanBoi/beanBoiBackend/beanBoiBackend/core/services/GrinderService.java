@@ -1,12 +1,15 @@
 package com.beanBoi.beanBoiBackend.beanBoiBackend.core.services;
 
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Grinder;
+import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.User;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.GrinderRepository;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.UserRepository;
-import com.google.cloud.firestore.DocumentReference;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +17,8 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class GrinderService {
 
     @Autowired
@@ -87,43 +92,41 @@ public class GrinderService {
         return individualSettingLists;
     }
 
-    public List<Map<String, Object>> getGrindersForUser(String uid) {
-        List<Grinder> grinders = grinderRepository.getGrindersForUser(uid);
-        return grinders.stream().map(grinderRepository::getAsMap).toList();
+    public List<Grinder> getGrindersForUser(String uid) throws FileNotFoundException {
+        if (userRepository.findById(uid).isPresent()) {
+            return grinderRepository.findGrindersByUid(uid);
+        } else {
+            throw new FileNotFoundException("User does not exist");
+        }
+
     }
 
 
-    public Grinder addGrinderToUser(Map<String, Object> map, String uid) {
-        Grinder grinder = new Grinder();
-        grinder.setActive(true);
+    public Grinder addGrinderToUser(Grinder grinder, String uid) throws FileNotFoundException {
+        if (userRepository.findById(uid).isPresent()) {
+            grinder.setUid(uid);
+            return grinderRepository.save(grinder);
+        } else {
+            throw new FileNotFoundException("User does not exist");
+        }
+    }
+
+    public Grinder editGrinder(Grinder grinder, String id, String uid) {
+        grinder.setId(id);
         grinder.setUid(uid);
-        grinder.setName(map.get("name").toString());
-        grinder.setGrindSettingRequests((List<Map<String, Object>>) map.get("settings"));
-        grinder.setGrindSetting(getSettingList((List<Map<String, Object>>) map.get("settings")));
-
-
-        DocumentReference grinderRef = grinderRepository.saveDocument(grinder);
-        userRepository.updateDocumentListWithField(uid, grinderRef, "grinders");
-        grinder.setId(grinderRef.getId());
-        return grinder;
-    }
-
-    public Grinder editGrinder(Map<String, Object> map, String id, String uid) {
-        Grinder grinder = grinderRepository.getGrinderById(id);
-        grinder.setActive(Boolean.parseBoolean(map.get("isActive").toString()));
-        grinder.setName(map.get("name").toString());
-        grinder.setGrindSettingRequests((List<Map<String, Object>>) map.get("settings"));
-        grinder.setGrindSetting(getSettingList((List<Map<String, Object>>) map.get("settings")));
-
-        grinderRepository.saveDocumentWithId(id, grinder);
+        grinderRepository.save(grinder);
         return grinder;
     }
 
     public Grinder deleteGrinder(String id) {
-        Grinder grinder = grinderRepository.getGrinderById(id);
-        grinder.setActive(false);
-        grinderRepository.saveDocumentWithId(id, grinder);
-        return grinder;
+        if (grinderRepository.findById(id).isPresent()) {
+            Grinder grinder = grinderRepository.findById(id).get();
+            grinder.setActive(false);
+            grinderRepository.save(grinder);
+            return grinder;
+        } else {
+            return null;
+        }
     }
 
     public List<String> getSettingList (List<Map<String, Object>> settingRequests) {

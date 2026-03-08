@@ -1,9 +1,12 @@
 package com.beanBoi.beanBoiBackend.beanBoiBackend.core.models;
 
-import com.google.cloud.Timestamp;
+
+import com.mongodb.internal.connection.Time;
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
+@Document(collection = "brews")
 public class Brew extends DocumentData {
 
     private String grindSetting;
@@ -16,7 +19,7 @@ public class Brew extends DocumentData {
     private float doseOut;
     private float temperature;
 
-    private Timestamp brewDate;
+    private Time brewDate;
     private Grinder grinderUsed;
     private BeanPurchase coffeeUsed;
 }
