@@ -14,7 +14,7 @@ import java.util.Map;
 
 
 @SpringBootTest
-class manualTests extends TestUtils{
+class manualTests {
 
     @Autowired
     BeanService service;
