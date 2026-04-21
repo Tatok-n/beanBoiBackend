@@ -33,18 +33,21 @@ public class BeanController {
         return beanService.getBeanById(beanId);
     }
 
-    @PostMapping("/users/{userId}/beans/")
-    public String addBean(@RequestBody Bean bean, @PathVariable String userId) throws FileNotFoundException {
+    @PostMapping("/users/beans/")
+    public String addBean(@RequestBody Bean bean, @AuthenticationPrincipal Jwt jwt) throws FileNotFoundException {
+        String userId = userService.getFromGoogleId(jwt).getId();
         return beanService.createNewBean(bean,userId).getId();
     }
 
-    @PostMapping("/users/{userId}/beans/{beanId}")
-    public void updateBean(@RequestBody Bean bean, @PathVariable String userId, @PathVariable String beanId) throws FileNotFoundException {
+    @PostMapping("/users/beans/{beanId}")
+    public void updateBean(@RequestBody Bean bean, @PathVariable String beanId, @AuthenticationPrincipal Jwt jwt) throws FileNotFoundException {
+        String userId = userService.getFromGoogleId(jwt).getId();
         beanService.updateBean(userId,bean, beanId);
     }
 
-    @DeleteMapping("/users/{userId}/beans/{beanId}")
-    public void deleteBean(@PathVariable String beanId, @PathVariable String userId) throws FileNotFoundException {
+    @DeleteMapping("/users/beans/{beanId}")
+    public void deleteBean(@PathVariable String beanId, @AuthenticationPrincipal Jwt jwt) throws FileNotFoundException {
+        String userId = userService.getFromGoogleId(jwt).getId();
         beanService.deleteBean(beanId,userId);
     }
 }

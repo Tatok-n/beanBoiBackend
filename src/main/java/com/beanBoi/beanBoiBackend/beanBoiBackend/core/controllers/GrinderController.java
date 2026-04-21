@@ -17,26 +17,32 @@ public class GrinderController {
     GrinderService grinderService;
     @Autowired
     GrinderRepository grinderRepository;
+    @Autowired
+    private UserService userService;
 
 
 
-    @GetMapping("users/{uid}/grinders")
-    public List<Grinder> getGrindersForUser(@PathVariable String uid) throws FileNotFoundException {
+    @GetMapping("users/grinders")
+    public List<Grinder> getGrindersForUser(@AuthenticationPrincipal Jwt jwt) throws FileNotFoundException {
+        String uid = userService.getFromGoogleId(jwt).getId();
         return grinderService.getGrindersForUser(uid);
     }
 
-    @PutMapping("users/{uid}/grinders")
-    public Grinder addGrinder(@PathVariable String uid, @RequestBody Grinder grinder) throws FileNotFoundException {
+    @PutMapping("users/grinders")
+    public Grinder addGrinder(@AuthenticationPrincipal Jwt jwt, @RequestBody Grinder grinder) throws FileNotFoundException {
+        String uid = userService.getFromGoogleId(jwt).getId();
         return grinderService.addGrinderToUser(grinder, uid);
     }
 
-    @PostMapping("users/{uid}/grinders/{id}")
-    public Grinder updateGrinder(@PathVariable String uid, @PathVariable String id, @RequestBody Grinder grinder) throws FileNotFoundException {
+    @PostMapping("users/grinders/{id}")
+    public Grinder updateGrinder(@AuthenticationPrincipal Jwt jwt, @PathVariable String id, @RequestBody Grinder grinder) throws FileNotFoundException {
+        String uid = userService.getFromGoogleId(jwt).getId();
         return  grinderService.editGrinder(grinder,id, uid);
     }
 
-    @DeleteMapping("users/{uid}/grinders/{id}")
-    public void deleteGrinder(@PathVariable String uid, @PathVariable String id) {
-        grinderService.deleteGrinder(id);
+    @DeleteMapping("users/grinders/{id}")
+    public void deleteGrinder(@AuthenticationPrincipal Jwt jwt, @PathVariable String id) {
+        String uid = userService.getFromGoogleId(jwt).getId();
+        grinderService.deleteGrinder(id, uid);
     }
 }

@@ -15,27 +15,34 @@ import java.util.Map;
 public class BeanPurchaseController {
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private BeanPurchaseRepository beanPurchaseRepository;
     @Autowired
     private BeanPurchaseService beanPurchaseService;
 
-    @PostMapping("/users/{userId}/beanPurchases")
-    BeanPurchase purchaseNewBean(@PathVariable String userId, @RequestBody BeanPurchase beanPurchase) throws FileNotFoundException {
+    @PostMapping("/users/beanPurchases")
+    BeanPurchase purchaseNewBean(@RequestBody BeanPurchase beanPurchase, @AuthenticationPrincipal Jwt jwt) throws FileNotFoundException {
+        String userId = userService.getFromGoogleId(jwt).getId();
         return beanPurchaseService.purchaseBean(beanPurchase.getName(), beanPurchase.getBeansPurchased().getId(), beanPurchase.getPurchaseDate(), beanPurchase.getRoastDate(), beanPurchase.getAmountPurchased(), beanPurchase.getPricePaid(), userId);
     }
 
-    @PutMapping("/users/{userId}/beanPurchases/{purchaseId}")
-    BeanPurchase editPurchase(@PathVariable String userId, @PathVariable String purchaseId, @RequestBody BeanPurchase purchase) throws FileNotFoundException {
+    @PutMapping("/users/beanPurchases/{purchaseId}")
+    BeanPurchase editPurchase(@PathVariable String purchaseId, @RequestBody BeanPurchase purchase, @AuthenticationPrincipal Jwt jwt) throws FileNotFoundException {
+        String userId = userService.getFromGoogleId(jwt).getId();
         return beanPurchaseService.editPurchase(purchaseId, purchase.getName(), purchase.getBeansPurchased().getId(), purchase.getPurchaseDate(), purchase.getRoastDate(), purchase.getAmountPurchased(), purchase.getPricePaid(), userId);
     }
 
-    @GetMapping("users/{userId}/beanPurchases")
-    List<BeanPurchase> getBeanPurchases(@PathVariable String userId) throws FileNotFoundException {
+    @GetMapping("users/beanPurchases")
+    List<BeanPurchase> getBeanPurchases(@AuthenticationPrincipal Jwt jwt) throws FileNotFoundException {
+        String userId = userService.getFromGoogleId(jwt).getId();
         return beanPurchaseService.getAllBeanPurchasesForUser(userId);
     }
 
-    @DeleteMapping("users/{userId}/beanPurchases/{purchaseId}")
-    void deleteBeanPurchase(@PathVariable String userId, @PathVariable String purchaseId, @RequestBody boolean isArchive) throws FileNotFoundException {
+    @DeleteMapping("users/beanPurchases/{purchaseId}")
+    void deleteBeanPurchase(@PathVariable String purchaseId, @RequestBody boolean isArchive, @AuthenticationPrincipal Jwt jwt) throws FileNotFoundException {
+        String userId = userService.getFromGoogleId(jwt).getId();
         beanPurchaseService.deleteBeanPurchase(userId, purchaseId, isArchive);
     }
 }

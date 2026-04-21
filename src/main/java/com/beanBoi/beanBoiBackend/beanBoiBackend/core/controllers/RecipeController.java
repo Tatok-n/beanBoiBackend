@@ -22,27 +22,34 @@ public class RecipeController {
     @Autowired
     private RecipeService recipeService;
 
-    @GetMapping("users/{uid}/recipes")
-    public List<Recipe> getUserRecipes(@PathVariable String uid) throws FileNotFoundException {
+    @Autowired
+    private UserService userService;
+
+    @GetMapping("users/recipes")
+    public List<Recipe> getUserRecipes(@AuthenticationPrincipal Jwt jwt) throws FileNotFoundException {
+        String uid = userService.getFromGoogleId(jwt).getId();
         return recipeService.getRecipesForUser(uid);
     }
 
 
-    @GetMapping("users/{uid}/recipes/active")
-    public List<Recipe> getAllRecipesForUser(@PathVariable String uid) {
-       return recipeService.getAllRecipesForUser(uid);
+    @GetMapping("users/recipes/active")
+    public List<Recipe> getAllRecipesForUser(@AuthenticationPrincipal Jwt jwt) {
+        String uid = userService.getFromGoogleId(jwt).getId();
+        return recipeService.getAllRecipesForUser(uid);
     }
 
 
-    @PostMapping("users/{uid}/recipes")
+    @PostMapping("users/recipes")
     public Recipe createRecipe(
-            @PathVariable String uid,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestBody Recipe recipeRequest, @RequestBody List<Map<String, Object>> waterMap, @RequestBody boolean isEspresso) throws FileNotFoundException {
+        String uid = userService.getFromGoogleId(jwt).getId();
         return recipeService.createRecipe(waterMap, recipeRequest.getDescription(), recipeRequest.getTemperature(), recipeRequest.getRatio(),recipeRequest.getDuration(), recipeRequest.getName(), uid, isEspresso);
     }
 
-    @PutMapping("users/{uid}/recipes")
-    public Recipe updateRecipe(@RequestBody Recipe recipe, @PathVariable String uid) throws FileNotFoundException {
+    @PutMapping("users/recipes/{id}")
+    public Recipe updateRecipe(@AuthenticationPrincipal Jwt jwt, @PathVariable String id, @RequestBody Recipe recipe) throws FileNotFoundException {
+        String uid = userService.getFromGoogleId(jwt).getId();
         if (recipe instanceof EspressoRecipe) {
             return recipeService.updateEspressoRecipe((EspressoRecipe) recipe);
         } else {
@@ -51,9 +58,10 @@ public class RecipeController {
     }
 
 
-    @DeleteMapping("users/{uid}/recipes/{id}")
-    public void deleteRecipe(@PathVariable String uid, @PathVariable String id) throws FileNotFoundException {
-        recipeService.deactivateRecipe(id);
+    @DeleteMapping("users/recipes/{id}")
+    public void deleteRecipe(@AuthenticationPrincipal Jwt jwt, @PathVariable String id) throws FileNotFoundException {
+        String uid = userService.getFromGoogleId(jwt).getId();
+        recipeService.deactivateRecipe(id, uid  );
     }
 
 
