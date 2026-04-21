@@ -1,4 +1,4 @@
-package com.beanBoi.beanBoiBackend.beanBoiBackend.security.controllers;
+package com.beanBoi.beanBoiBackend.beanBoiBackend.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

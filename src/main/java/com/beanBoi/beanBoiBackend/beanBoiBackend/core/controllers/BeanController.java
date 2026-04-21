@@ -3,7 +3,10 @@ package com.beanBoi.beanBoiBackend.beanBoiBackend.core.controllers;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Bean;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.BeanRepository;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.services.BeanService;
+import com.beanBoi.beanBoiBackend.beanBoiBackend.core.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
@@ -16,10 +19,13 @@ public class BeanController {
     @Autowired
     BeanService beanService;
 
+    @Autowired
+    UserService userService;
 
-    @GetMapping("/users/{uid}/beans")
-    public List<Bean> getUserBeans(@PathVariable String uid) throws FileNotFoundException {
-        return beanService.getAllBeansForUser(String.valueOf(uid));
+
+    @GetMapping("/beans")
+    public List<Bean> getUserBeans(@AuthenticationPrincipal Jwt jwt) throws FileNotFoundException {
+        return beanService.getAllBeansForUser(userService.getFromGoogleId(jwt).getId());
     }
 
     @GetMapping("/beans/{beanId}")
