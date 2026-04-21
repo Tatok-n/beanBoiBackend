@@ -1,9 +1,11 @@
 package com.beanBoi.beanBoiBackend.beanBoiBackend.core.models;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Data
+@Getter
+@Setter
 @Document(collection = "beans")
 public class Bean extends DocumentData {
 

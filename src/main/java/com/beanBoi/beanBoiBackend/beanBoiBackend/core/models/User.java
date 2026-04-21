@@ -15,4 +15,5 @@ public class User extends DocumentData {
     private List<Brew> brews;
     private List<Bean> beansOwned;
     private List<BeanPurchase> beansAvailable;
+    private String email;
 }

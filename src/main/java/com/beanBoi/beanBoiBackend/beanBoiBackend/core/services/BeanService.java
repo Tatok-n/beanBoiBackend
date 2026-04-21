@@ -39,7 +39,7 @@ public class BeanService {
         throw new FileNotFoundException("Bean does not exist");
     }
 
-    public void updateBean(String uid, Bean bean, String beanId) throws FileNotFoundException {
+    public void updateBean(String uid, Bean bean, String beanId) {
         bean.setUid(uid);
         bean.setId(beanId);
         beanRepository.save(bean);
