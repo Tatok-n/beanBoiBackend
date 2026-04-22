@@ -1,18 +1,14 @@
 package com.beanBoi.beanBoiBackend.beanBoiBackend.core.controllers;
 
-import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.EspressoRecipe;
-import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Recipe;
-import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.V60Recipe;
-import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Water;
+import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.*;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.services.RecipeService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.beanBoi.beanBoiBackend.beanBoiBackend.core.services.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,30 +22,30 @@ public class RecipeController {
     private UserService userService;
 
     @GetMapping("users/recipes")
-    public List<Recipe> getUserRecipes(@AuthenticationPrincipal Jwt jwt) throws FileNotFoundException {
-        String uid = userService.getFromGoogleId(jwt).getId();
+    public List<Recipe> getUserRecipes(@AuthenticationPrincipal User user) throws FileNotFoundException {
+        String uid = user.getId();
         return recipeService.getRecipesForUser(uid);
     }
 
 
     @GetMapping("users/recipes/active")
-    public List<Recipe> getAllRecipesForUser(@AuthenticationPrincipal Jwt jwt) {
-        String uid = userService.getFromGoogleId(jwt).getId();
+    public List<Recipe> getAllRecipesForUser(@AuthenticationPrincipal User user) throws FileNotFoundException {
+        String uid = user.getId();
         return recipeService.getAllRecipesForUser(uid);
     }
 
 
     @PostMapping("users/recipes")
     public Recipe createRecipe(
-            @AuthenticationPrincipal Jwt jwt,
+            @AuthenticationPrincipal User user,
             @RequestBody Recipe recipeRequest, @RequestBody List<Map<String, Object>> waterMap, @RequestBody boolean isEspresso) throws FileNotFoundException {
-        String uid = userService.getFromGoogleId(jwt).getId();
+        String uid = user.getId();
         return recipeService.createRecipe(waterMap, recipeRequest.getDescription(), recipeRequest.getTemperature(), recipeRequest.getRatio(),recipeRequest.getDuration(), recipeRequest.getName(), uid, isEspresso);
     }
 
     @PutMapping("users/recipes/{id}")
-    public Recipe updateRecipe(@AuthenticationPrincipal Jwt jwt, @PathVariable String id, @RequestBody Recipe recipe) throws FileNotFoundException {
-        String uid = userService.getFromGoogleId(jwt).getId();
+    public Recipe updateRecipe(@AuthenticationPrincipal User user, @PathVariable String id, @RequestBody Recipe recipe) throws FileNotFoundException {
+        String uid = user.getId();
         if (recipe instanceof EspressoRecipe) {
             return recipeService.updateEspressoRecipe((EspressoRecipe) recipe);
         } else {
@@ -59,9 +55,9 @@ public class RecipeController {
 
 
     @DeleteMapping("users/recipes/{id}")
-    public void deleteRecipe(@AuthenticationPrincipal Jwt jwt, @PathVariable String id) throws FileNotFoundException {
-        String uid = userService.getFromGoogleId(jwt).getId();
-        recipeService.deactivateRecipe(id, uid  );
+    public void deleteRecipe(@AuthenticationPrincipal User user, @PathVariable String id) throws FileNotFoundException {
+        String uid = user.getId();
+        recipeService.deactivateRecipe(id);
     }
 
 
