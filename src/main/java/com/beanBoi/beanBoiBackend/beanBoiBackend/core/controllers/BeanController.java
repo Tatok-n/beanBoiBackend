@@ -28,9 +28,9 @@ public class BeanController {
     }
 
     @PostMapping("/users/beans/")
-    public String addBean(@RequestBody Bean bean, @AuthenticationPrincipal User user) throws FileNotFoundException {
+    public Bean addBean(@RequestBody Bean bean, @AuthenticationPrincipal User user) throws FileNotFoundException {
         String userId = user.getId();
-        return beanService.createNewBean(bean, userId).getId();
+        return beanService.createNewBean(bean, userId);
     }
 
     @PostMapping("/users/beans/{beanId}")

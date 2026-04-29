@@ -2,7 +2,7 @@ package com.beanBoi.beanBoiBackend.beanBoiBackend.core.services;
 
 
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.Bean;
-import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.User;
+import com.beanBoi.beanBoiBackend.beanBoiBackend.core.models.DocumentData;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.BeanRepository;
 import com.beanBoi.beanBoiBackend.beanBoiBackend.core.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class BeanService {
 
     public List<Bean> getAllBeansForUser(String userId) throws FileNotFoundException {
         if (userRepository.findById(userId).isPresent()) {
-            return beanRepository.findAllByUid(userId);
+            return beanRepository.findAllByUid(userId).stream().filter(DocumentData::isActive).toList();
         }
         throw new FileNotFoundException("User does not exist");
     }
@@ -56,6 +56,7 @@ public class BeanService {
 
     public Bean createNewBean(Bean bean, String uid) throws FileNotFoundException {
         if (userRepository.findById(uid).isPresent()) {
+            bean.setActive(true);
             bean.setUid(uid);
             return beanRepository.save(bean);
         }
@@ -64,14 +65,13 @@ public class BeanService {
 
     public void deleteBean(String beanId, String UID) throws FileNotFoundException {
         if (beanRepository.findById(beanId).isPresent() && userRepository.findById(UID).isPresent()) {
-            User user = userRepository.findById(UID).get();
             Bean bean = beanRepository.findById(beanId).get();
             bean.setActive(false);
             beanRepository.save(bean);
-            user.getBeansOwned().remove(bean);
-            userRepository.save(user);
+        } else {
+            throw new FileNotFoundException("User or bean does not exist");
         }
-        throw new FileNotFoundException("User or bean does not exist");
+
 
     }
 }
